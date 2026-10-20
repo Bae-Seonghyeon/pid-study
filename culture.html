@@ -1,0 +1,762 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body><div style="position:sticky;top:0;z-index:50;display:flex;justify-content:flex-start;padding:8px max(16px,env(safe-area-inset-left,0px));background:#16212b"><button type="button" onclick="history.back()" style="font:600 13px system-ui,sans-serif;color:#fff;background:transparent;border:1px solid #6b7c8a;border-radius:6px;padding:5px 12px;cursor:pointer">← 자료 목록</button></div>
+<title>배양 설비 통합 P&ID</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F5F6;--sheet:#FBFCFC;--ink:#1D2A33;--ink2:#56646E;--grid:#E4E9EC;--line:#34434D;
+  --steam:#C2392E;--air:#2B66AB;--chw:#0E7E84;--prod:#6A4BAF;--sig:#7D8B95;
+  --hot:#D98E00;--hotbg:#FFF3D6;--sel:#2B66AB;--border:rgba(29,42,51,.14);
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0F1519;--sheet:#141B20;--ink:#DCE3E7;--ink2:#9AA8B1;--grid:#1C262D;--line:#A9B6BE;
+  --steam:#F07166;--air:#6FA4E6;--chw:#44BFC4;--prod:#A68EEB;--sig:#7C8B95;
+  --hot:#FFB627;--hotbg:#3A2C0C;--sel:#6FA4E6;--border:rgba(220,227,231,.14);}}
+:root[data-theme="dark"]{
+  --paper:#0F1519;--sheet:#141B20;--ink:#DCE3E7;--ink2:#9AA8B1;--grid:#1C262D;--line:#A9B6BE;
+  --steam:#F07166;--air:#6FA4E6;--chw:#44BFC4;--prod:#A68EEB;--sig:#7C8B95;
+  --hot:#FFB627;--hotbg:#3A2C0C;--sel:#6FA4E6;--border:rgba(220,227,231,.14);}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans KR",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.6}
+header{max-width:1560px;margin:0 auto;padding:28px 24px 8px}
+h1{font-size:26px;font-weight:600;margin:0 0 6px;letter-spacing:-.01em}
+.lead{margin:0;color:var(--ink2);font-size:15px;max-width:72ch}
+.scen{max-width:1560px;margin:0 auto;padding:14px 24px 10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.scen span{font-size:13px;color:var(--ink2);margin-right:4px}
+.scen button{font:inherit;font-size:13px;padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:var(--sheet);color:var(--ink);cursor:pointer}
+.scen button:hover{border-color:var(--ink2)}
+.scen button[aria-pressed="true"]{background:var(--hotbg);border-color:var(--hot);color:var(--ink)}
+.scen button:focus-visible,.pbtn:focus-visible{outline:2px solid var(--sel);outline-offset:2px}
+main{max-width:1560px;margin:0 auto;padding:0 24px 24px;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:20px;align-items:start}
+@media (max-width:1100px){main{grid-template-columns:minmax(0,1fr)}}
+.sheetwrap{background:var(--sheet);border:1px solid var(--border);border-radius:10px;overflow-x:auto}
+svg#dwg,svg#dwg2{display:block;width:100%;min-width:1100px;height:auto}
+.tabs{max-width:1560px;margin:0 auto;padding:14px 24px 0;display:flex;gap:6px;flex-wrap:wrap}
+.tabs button{font:inherit;font-size:14px;font-weight:500;padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--sheet);color:var(--ink2);cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--ink);border-color:var(--ink);font-weight:600}
+.tabs button:focus-visible{outline:2px solid var(--sel);outline-offset:2px}
+.tb{fill:none!important}.eq.subm{fill:var(--prod);fill-opacity:.2}.cmp.hot .eq.subm,.cmp.sel .tb{fill:none!important}.eq.subm{fill-opacity:.35}
+aside{background:var(--sheet);border:1px solid var(--border);border-radius:10px;padding:18px 18px 20px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}
+@media (max-width:1100px){aside{position:static}}
+.pkind{font-size:12px;color:var(--ink2);margin:0 0 2px}
+aside h2{font-size:19px;font-weight:600;margin:0 0 10px;line-height:1.35}
+.fld{margin:0 0 12px}
+.fld b{display:block;font-size:12.5px;font-weight:600;color:var(--ink2);margin-bottom:2px}
+.fld p{margin:0;font-size:14.5px}
+ol.steps{margin:4px 0 14px;padding-left:20px;font-size:14.5px}
+ol.steps li{padding:5px 6px;border-radius:6px;cursor:pointer;margin-bottom:2px}
+ol.steps li.cur{background:var(--hotbg);outline:1px solid var(--hot)}
+ol.steps li.done{color:var(--ink2)}
+.pnav{display:flex;gap:8px}
+.pbtn{font:inherit;font-size:13px;padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--ink);cursor:pointer}
+.pbtn:disabled{opacity:.4;cursor:default}
+.hint{font-size:14px;color:var(--ink2);margin:0}
+.legend{max-width:1560px;margin:0 auto;padding:0 24px 40px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.legend section{background:var(--sheet);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+.legend h3{font-size:15px;font-weight:600;margin:0 0 8px}
+.legend ul{list-style:none;margin:0;padding:0;font-size:13.5px}
+.legend li{display:flex;align-items:center;gap:10px;padding:3px 0}
+.sw{width:30px;height:0;border-top:2.5px solid;flex:none}
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.tbl td{padding:3px 6px 3px 0;vertical-align:top}
+.tbl td:first-child{font-weight:600;width:28px}
+
+.abbr{max-width:1560px;margin:0 auto;padding:0 24px 24px}
+.abbr>h2{font-size:19px;font-weight:600;margin:0 0 4px}
+.abbr>p{margin:0 0 14px;color:var(--ink2);font-size:14px;max-width:80ch}
+.abgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:20px;align-items:start}
+.abgrid section{background:var(--sheet);border:1px solid var(--border);border-radius:10px;padding:14px 18px 10px;min-width:0}
+.abgrid h3{font-size:15px;font-weight:600;margin:0 0 6px}
+.ab{width:100%;border-collapse:collapse;font-size:13.5px}
+.ab td{padding:6px 10px 6px 0;vertical-align:top;border-top:1px solid var(--border)}
+.ab tr:first-child td{border-top:0}
+.ab td:first-child{white-space:nowrap;font-weight:600;width:1%}
+.ab td:last-child{padding-right:0}
+.ab .en{display:block;color:var(--ink)}
+.ab .en b,.abl .en b{font-weight:600;color:var(--sel)}
+.ab .ko{display:block;color:var(--ink2)}
+.abtn{font:inherit;font-weight:600;color:var(--ink);background:transparent;border:1px solid var(--border);border-radius:5px;padding:1px 7px;cursor:pointer}
+.abtn:hover{border-color:var(--ink2)}
+.abtn:focus-visible{outline:2px solid var(--sel);outline-offset:2px}
+.abl{list-style:none;margin:0;padding:0;font-size:14.5px}
+.abl li{padding:2px 0}
+.abl .tag{font-weight:600;margin-right:6px}.abl .en{display:inline}.fld .abl .en b{display:inline;font-size:inherit;font-weight:600;color:var(--sel);margin:0}
+.abl .ko{display:block;color:var(--ink2);font-size:13.5px}
+/* drawing */
+#dwg text{fill:var(--ink);font-family:inherit}
+.tg{font-size:11px;font-weight:600}
+.ts{font-size:10px;fill:var(--ink2)!important}
+.ti{font-size:8.5px;font-weight:600}
+.zt{font-size:12px;font-weight:600;fill:var(--ink2)!important}
+.zone{fill:none;stroke:var(--ink2);stroke-width:1;stroke-dasharray:6 5;opacity:.7}
+.eq{fill:var(--sheet);stroke:var(--line);stroke-width:1.3}
+.eqd{fill:none;stroke:var(--line);stroke-width:1;stroke-dasharray:4 3}
+.vlv{fill:var(--sheet);stroke:var(--line);stroke-width:1.2}
+.hit{fill:transparent;stroke:none}
+.pipe{fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.p-air{stroke:var(--air)}.p-steam{stroke:var(--steam)}.p-chw{stroke:var(--chw)}.p-tw{stroke:var(--chw);stroke-dasharray:1 0;opacity:.75}.p-vent{stroke:var(--ink2)}.p-prod{stroke:var(--prod)}.p-jk{stroke:var(--chw);stroke-width:2.6}.p-su{stroke:var(--prod);stroke-width:1.6;opacity:.85}.bnd{stroke:var(--steam);stroke-width:1.4;stroke-dasharray:8 4;fill:none}
+.hdr{stroke-width:3}
+.sigl{fill:none;stroke:var(--sig);stroke-width:1;stroke-dasharray:4 3}
+.ov{fill:none;stroke:var(--hot);stroke-width:2;stroke-dasharray:6 4;display:none}
+.ov.on{display:inline}
+.pipe.hot{stroke:var(--hot)!important;stroke-width:3.4;stroke-dasharray:10 7;opacity:1}
+.cmp{cursor:pointer;outline:none}
+.cmp:hover .eq,.cmp:hover .vlv{stroke-width:2}
+.cmp.hot .eq,.cmp.hot .vlv{stroke:var(--hot);stroke-width:2.6;fill:var(--hotbg)}
+.cmp.sel .eq,.cmp.sel .vlv{stroke:var(--sel);stroke-width:2.6}
+.cmp:focus-visible .eq,.cmp:focus-visible .vlv{stroke:var(--sel);stroke-width:3}
+@media (prefers-reduced-motion:no-preference){
+  .pipe.hot,.ov.on{animation:flow 1s linear infinite}
+  @keyframes flow{to{stroke-dashoffset:-17}}
+}
+</style>
+<header>
+  <h1>배양 설비 P&amp;ID와 운전 시나리오</h1>
+  <p class="lead">두 개의 도면을 탭으로 나눴습니다. 생산용 SUB 공정 P&amp;ID는 실제 설비에 가깝게 그린 교육용 도면이고, 5L 벤치탑 배양기는 실습 강의 자료를 바탕으로 포트 구성과 조립부터 정리까지의 운전 순서를 담았습니다. 기기를 누르면 태그 약자 풀이와 역할, 조작 결과가 나오고, 시나리오를 고르면 단계별로 강조됩니다. 도면 아래 약자 풀이 표에는 도면에 나오는 모든 약자를 정리했습니다.</p>
+</header>
+<div class="tabs" role="tablist" aria-label="도면 선택"><button role="tab" data-t="sub" aria-selected="true">생산용 SUB 공정 P&amp;ID</button><button role="tab" data-t="bench" aria-selected="false">5L 벤치탑 배양기 (실습)</button></div>
+<nav class="scen" id="scen" aria-label="시나리오"><span>시나리오</span></nav>
+<main>
+  <div class="sheetwrap"><svg id="dwg2" viewBox="0 0 1400 990" role="img" aria-label="5L 벤치탑 유리 배양기의 옆모습과 헤드플레이트 포트 배치도" style="display:none"></svg><svg id="dwg" viewBox="0 0 1400 990" role="img" aria-label="공정 가스와 유틸리티 공급, 스테인리스 배지 저장 용기, 일회용 배양기, 재킷 온도 조절 장치로 구성된 배관 계장도"></svg></div>
+  <aside id="panel" aria-live="polite"></aside>
+</main>
+<div class="abbr">
+  <h2>약자 풀이</h2>
+  <p>파란 글자가 약자를 이루는 글자입니다. 약자를 누르면 도면에서 해당 기기가 표시됩니다. 태그의 숫자는 설비 일련번호나 제어 루프 번호이고, 같은 번호의 계기는 한 루프로 묶입니다(PT-160이 재고 PIC-160이 제어). 설비 약자는 회사마다 조금씩 다르며, 이 도면의 태그는 교육용으로 지은 것입니다.</p>
+  <div class="abgrid" id="abgrid"></div>
+</div>
+<div class="legend">
+  <section><h3>선의 의미</h3><ul>
+    <li><i class="sw" style="border-color:var(--air)"></i>청정 공기, 공정 가스</li>
+    <li><i class="sw" style="border-color:var(--steam)"></i>청정 스팀</li>
+    <li><i class="sw" style="border-color:var(--chw)"></i>냉각수, 재킷 순환수, 세척수</li>
+    <li><i class="sw" style="border-color:var(--prod)"></i>배지, 배양액 (스테인리스 배관)</li>
+    <li><i class="sw" style="border-color:var(--prod);border-top-width:1.5px;opacity:.8"></i>일회용 튜브</li>
+    <li><i class="sw" style="border-color:var(--ink2)"></i>배기 (각 필터에서 대기로)</li>
+    <li><i class="sw" style="border-color:var(--sig);border-top-style:dashed;border-top-width:1.5px"></i>계기 신호</li>
+    <li><i class="sw" style="border-color:var(--hot);border-top-style:dashed"></i>시나리오에서 활성화된 신호와 흐름</li>
+  </ul></section>
+  <section><h3>태그 읽는 법 (첫 글자는 측정 대상)</h3><table class="tbl">
+    <tr><td>T</td><td>온도</td><td>P</td><td>압력</td></tr>
+    <tr><td>L</td><td>레벨</td><td>W</td><td>무게</td></tr>
+    <tr><td>S</td><td>속도</td><td>Q</td><td>분석값 (pH, DO)</td></tr>
+  </table></section>
+  <section><h3>태그 읽는 법 (뒤 글자는 기능)</h3><table class="tbl">
+    <tr><td>E</td><td>센서</td><td>T</td><td>전송기</td></tr>
+    <tr><td>I</td><td>표시</td><td>C</td><td>제어</td></tr>
+    <tr><td>S</td><td>스위치</td><td>HH</td><td>매우 높음</td></tr>
+  </table><p class="hint" style="margin-top:8px">원은 현장 계기, 사각형 안의 원은 제어 시스템 화면의 계기, 나비 모양은 밸브, 오각형 화살표는 다른 도면이나 구역으로 이어지는 연결 표시입니다.</p></section>
+</div>
+
+<script>
+const D={
+AC:{t:'AC-001/002 무급유 스크롤 압축기',g:'AC는 Air Compressor입니다.',r:'외부 공기를 0.65~0.8 MPa로 압축합니다. 오일을 쓰지 않아 공기에 기름이 섞이지 않습니다. 두 대는 한 대가 멈춰도 운전이 이어지도록 한 이중화입니다.',a:'둘 다 멈추면 청정 공기 헤더 압력이 떨어져 스파징, 오버레이, 저장 용기 가압, 공압 밸브 구동이 모두 영향을 받습니다.',x:'압력 저하 경보, 과열, 두 대의 운전 시간 편중을 점검합니다.'},
+'AT-001':{t:'AT-001 공기 저장 탱크',g:'Air receiver tank.',r:'압축 공기를 모아 압력 변동을 완충하고, 식으며 생긴 응축수를 자동 배수 트랩으로 빼냅니다.',a:'배수 트랩이 막히면 물이 다음 설비로 넘어갑니다.',x:'압력용기라 정기 검사 대상입니다.'},
+'RD-001':{t:'RD-001 냉동식 제습기',g:'Refrigeration air dryer.',r:'공기를 식혀 수분 대부분을 물방울로 맺히게 해 제거합니다.',a:'정지하면 수분이 흡착식 제습기로 몰려 흡착제가 빨리 포화됩니다.',x:'출구 이슬점 상승을 봅니다.'},
+'AF-001':{t:'AF-001 라인 필터 (1 µm)',g:'Line filter.',r:'입자를 걸러 흡착식 제습기를 보호합니다.',a:'교체하려면 공급을 멈추거나 우회 라인이 필요합니다.',x:'필터 앞뒤 차압이 커지면 막힘 신호입니다.'},
+'DD-001':{t:'DD-001 흡착식 제습기',g:'Desiccant dryer, 이슬점 -40°C.',r:'두 탑이 번갈아 흡착과 재생을 하며 공기를 깊게 건조합니다.',a:'탑 전환 때 잠깐 압력이 흔들립니다.',x:'이슬점이 오르면 배관 안에 물이 맺히고 무균 필터가 젖을 수 있습니다.'},
+'AF-002':{t:'AF-002 코어레싱 필터 (0.01 µm)',g:'Coalescing filter.',r:'미세 오일 미스트, 물방울, 입자를 최종 제거합니다. 이 뒤부터가 청정 공기 헤더입니다.',a:'교체 전후로 하류 공기 품질을 확인합니다.',x:'차압과 자동 배수 상태를 점검합니다.'},
+'G-SUP':{t:'O₂, CO₂, N₂ 공급',g:'실린더나 벌크 탱크에서 공급되는 공정 가스입니다.',r:'고압 가스를 감압 밸브(PCV)로 일정한 압력까지 낮춘 뒤, 오각형 연결 표시를 따라 배양기 가스 패널의 MFC로 보냅니다.',a:'공급 밸브를 닫으면 해당 가스를 쓰는 제어(DO, pH)가 작동하지 않습니다.',x:'실린더 잔량, 감압 후 압력(PI), 가스 품질 성적서를 확인합니다.'},
+'CSG-01':{t:'CSG-01 청정 스팀 발생기',g:'Clean steam generator.',r:'정제수로 만든 오염 없는 스팀을 청정 스팀 헤더로 보냅니다. 제품 접촉면 멸균(SIP)에 씁니다.',a:'정지하면 SIP를 할 수 없습니다.',x:'스팀 응축수의 엔도톡신, 전도도, 비응축성 가스와 과열도를 정기적으로 시험합니다.'},
+'CH-01':{t:'CH-01 칠러',g:'Chiller.',r:'냉각수를 만들어 공급 헤더로 보내고, 쓰고 돌아온 물을 회수 헤더로 받아 다시 식힙니다.',a:'멈추면 TCU가 배양기를 식힐 수 없습니다.',x:'공급 온도와 유량을 확인합니다.'},
+'H-AIR':{t:'청정 공기 헤더',g:'Clean air utility.',r:'처리된 공기를 저장 용기 가압, 배양기 스파징과 오버레이에 나눠 보냅니다. 사용처마다 0.2 µm 무균 필터를 한 번 더 거칩니다.',a:'헤더 밸브를 닫으면 하류 전체의 공기 공급이 멈춥니다.',x:'입자, 수분, 오일, 미생물을 정기적으로 시험합니다.'},
+'H-STEAM':{t:'청정 스팀 헤더',g:'Clean steam utility.',r:'저장 용기와 스테인리스 배관 멸균에 씁니다. 일회용 백 쪽에는 연결되지 않습니다.',a:'열면 121°C 이상의 스팀이 흐릅니다. 정해진 절차로만 조작합니다.',x:'응축수가 잘 빠지지 않으면 멸균 온도에 못 미치는 cold spot이 생깁니다.'},
+'H-CHWS':{t:'냉각수 공급 헤더',g:'Chilled water supply.',r:'칠러에서 TCU 열교환기로 냉각수를 보냅니다.',a:'공급이 멈추면 온도 shift를 할 수 없습니다.',x:'공급 온도와 압력을 봅니다.'},
+'H-CHWR':{t:'냉각수 회수 헤더',g:'Chilled water return.',r:'열교환기를 지나 데워진 냉각수를 칠러로 돌려보냅니다.',a:'회수가 막히면 공급도 흐르지 않습니다.',x:'회수 온도로 열부하를 가늠합니다.'},
+'T-50':{t:'T-50 배지 저장 용기 (스테인리스)',g:'Media hold vessel.',r:'준비한 배지를 보관했다가 배양기로 보냅니다. 재사용 설비라 매번 CIP로 씻고 SIP로 멸균합니다.',a:'압력은 PG-01, 온도는 TE-01로 봅니다.',x:'세척 후 멸균까지, 멸균 후 사용까지의 보관 가능 시간(hold time)을 검증해 둡니다.'},
+'CV-01':{t:'CV-01 CIP 공급 밸브',g:'CIP 스키드에서 오는 세척액 밸브입니다.',r:'세척액(알칼리, 산, 정제수 헹굼)을 스프레이 볼로 보냅니다.',a:'열면 SB-01이 내벽 전체에 세척액을 뿌립니다.',x:'최종 헹굼수의 전도도와 TOC로 세척 완료를 확인합니다.'},
+'SB-01':{t:'SB-01 스프레이 볼',g:'CIP 노즐.',r:'세척액을 사방으로 뿌려 용기 내벽을 씻습니다.',a:'유량이 부족하면 닿지 않는 부분이 생깁니다.',x:'리보플라빈 커버리지 시험으로 내벽 전체에 닿는지 검증합니다.'},
+'AFS-01':{t:'AFS-01 공기 무균 필터 (0.2 µm)',g:'급기 필터.',r:'용기로 들어가는 공기를 무균으로 만듭니다. 배지 이송 때 상부를 가압하고, 멸균 후 식을 때 양압을 유지해 진공을 막습니다.',a:'가압하면 용기 압력이 올라 배지가 필터 쪽으로 밀려 나갑니다.',x:'SIP 때 함께 멸균하고, 사용 후 완전성 시험을 합니다.'},
+'SV-01':{t:'SV-01 스팀 공급 밸브',g:'저장 용기 SIP용 스팀 밸브입니다.',r:'용기 안으로 청정 스팀을 넣습니다.',a:'열면 SIP가 시작됩니다. 닫으면 멸균이 끝나고 AFS-01로 공기를 넣어 양압을 유지합니다.',x:'멸균 시간 전에 닫히면 멸균 실패로 봅니다.'},
+'VFS-01':{t:'VFS-01 배기 필터',g:'Vent filter.',r:'용기에서 나가는 공기와 스팀을 걸러 대기로 내보내고, 바깥 오염이 들어오지 않게 막습니다.',a:'SIP 중에는 스팀이 통과하며 필터도 함께 멸균됩니다.',x:'젖거나 막히면 용기 압력이 오르거나 식을 때 진공이 생깁니다.'},
+'PSV-01':{t:'PSV-01 압력 안전 밸브',g:'P는 압력, S는 안전, V는 밸브입니다.',r:'스팀으로 가압되는 용기가 설계 압력을 넘지 않도록 저절로 열립니다.',a:'수동 조작 대상이 아닙니다.',x:'작동했다면 원인을 조사합니다. 파열판(rupture disc)을 함께 쓰기도 합니다.'},
+'VB-01':{t:'VB-01 진공 방지 장치',g:'Vacuum breaker.',r:'멸균 후 스팀이 응축하면 용기 안이 진공이 되어 찌그러질 수 있습니다. 압력이 너무 낮아지면 필터를 거친 공기를 들여 이를 막습니다.',a:'자동으로 작동합니다.',x:'AFS-01 양압 유지가 1차 수단이고, VB-01은 기계적 백업입니다.'},
+'PG-01':{t:'PG-01 압력계',g:'P는 압력, G는 현장 게이지입니다.',r:'용기 압력을 봅니다. 포화 스팀은 압력과 온도가 짝지어져 있어 SIP 상태를 함께 확인할 수 있습니다.',a:'읽는 계기입니다.',x:'교정 주기를 관리합니다.'},
+'TE-01':{t:'TE-01 용기 온도 센서',g:'T는 온도, E는 센서입니다.',r:'용기 안 온도를 잽니다.',a:'읽는 계기입니다.',x:'교정 주기를 관리합니다.'},
+'TE-02':{t:'TE-02 배수구 온도 센서',g:'T는 온도, E는 센서입니다.',r:'SIP에서 가장 차가운 지점인 배수구 쪽 온도를 잽니다. 여기가 121°C 이상을 정해진 시간 동안 유지해야 멸균 성공으로 판정합니다.',a:'읽는 계기입니다.',x:'온도가 오르지 않으면 스팀 트랩 막힘이나 공기 고임을 의심합니다.'},
+'BV-01':{t:'BV-01 하부 배출 밸브',g:'Bottom valve.',r:'용기 바닥 출구입니다. SIP 때는 스팀과 응축수가 이 밸브를 지나 배관까지 멸균하고, 이송 때는 배지가 나갑니다.',a:'열면 용기와 하부 배관이 연결됩니다.',x:'내용물이 고이는 공간(dead leg)이 없게 설계합니다.'},
+'ST-01':{t:'ST-01 스팀 트랩',g:'Steam trap.',r:'배관의 가장 낮은 곳에서 응축수만 빼고 스팀은 가둡니다.',a:'자동으로 작동합니다.',x:'고장 나면 응축수가 고여 TE-02 온도가 오르지 않습니다.'},
+'BB':{t:'XV-02, XV-03, XV-04 이중 차단과 배출 (block and bleed)',g:'X는 on/off 자동 밸브, V는 밸브입니다.',r:'XV-02와 XV-04가 두 겹으로 막고, 그 사이의 XV-03이 배수로 열려 있어 스팀이나 세척액이 새더라도 제품 쪽으로 넘어가지 못하고 배수로 빠집니다.',a:'SIP 중: XV-02 열림, XV-04 닫힘, XV-03 열림. 이송 중: XV-02와 XV-04 열림, XV-03 닫힘.',x:'밸브 위치가 순서대로 바뀌는지 인터록으로 관리합니다.'},
+'SCN-01':{t:'SCN-01 무균 커넥터',g:'Sterile connector.',r:'여기가 스테인리스와 일회용의 경계입니다. 스팀으로 멸균한 쪽과 감마선으로 멸균된 일회용 어셈블리를 무균 상태로 연결합니다.',a:'연결 후 튜브의 클램프를 열어야 흐름이 생깁니다.',x:'연결 작업 기록과 커넥터 로트 관리가 필요합니다.'},
+'MF-01':{t:'MF-01 배지 무균 여과 필터 (0.2 µm)',g:'Sterilizing-grade filter.',r:'배지는 열에 약한 성분이 많아 스팀 대신 여과로 멸균합니다. 이 필터를 통과한 배지만 백으로 들어갑니다.',a:'이송 압력이 너무 높으면 필터가 막히거나 손상될 수 있어 차압을 봅니다.',x:'사용 후 완전성 시험(버블 포인트 등)에 합격해야 여과가 유효합니다.'},
+'PC-M':{t:'배지 튜브 클램프',g:'Pinch clamp.',r:'일회용 튜브를 눌러 흐름을 막고 여는 장치입니다. 금속 밸브 대신 씁니다.',a:'열면 여과된 배지가 백으로 들어갑니다.',x:'이송이 끝나면 닫고 튜브를 무균 절단·밀봉합니다.'},
+'BAG-100':{t:'BAG-100 일회용 배양 백 (홀더 BHR-100)',g:'Single-use bioreactor.',r:'제품이 닿는 부분은 감마선 멸균된 일회용 백이고, 바깥은 재킷이 있는 스테인리스 홀더입니다. 스팀을 쓰지 않으므로 CIP와 SIP가 필요 없습니다.',a:'백은 아주 낮은 압력에서도 손상될 수 있어 PT-160으로 압력을 계속 감시합니다.',x:'설치 전 누출 시험, 추출물·용출물(E&L) 자료, 설치 시 꺾임 여부를 확인합니다.'},
+'M-130':{t:'M-130 교반 모터와 임펠러',g:'M은 모터, 130은 교반 루프 번호입니다.',r:'배양액을 섞고 기포를 쪼개 산소 전달(kLa)을 높입니다.',a:'속도를 올리면 산소 전달이 좋아지지만 전단 스트레스와 거품도 늘어납니다.',x:'과부하와 설정 속도 대비 편차를 봅니다.'},
+'SC-130':{t:'SC-130 속도 제어 장치',g:'S는 속도, C는 제어, 130은 교반 루프입니다.',r:'현장의 인버터로, SIC-130 설정대로 모터 전력을 조절합니다.',a:'SIC-130 설정이 바뀌면 모터 속도를 맞춥니다.',x:'고장 시 교반이 멈추고 DO가 급격히 떨어집니다.'},
+'SIC-130':{t:'SIC-130 교반 속도 표시·제어기',g:'S는 속도, I는 표시, C는 제어입니다. 사각형 안의 원은 제어 시스템 화면의 계기입니다.',r:'작업자가 rpm을 설정하고 확인합니다. DO cascade의 첫 단계 신호가 들어옵니다.',a:'설정을 올리면 SC-130을 거쳐 M-130이 빨라집니다.',x:'정해진 상한을 넘지 않도록 제한값을 둡니다.'},
+'MFC-AIR':{t:'MFC-A 공기 유량 조절기',g:'MFC는 Mass Flow Controller입니다.',r:'큰 기포 스파저(SPG-D)로 공기를 보냅니다. DO cascade 2단계이며 CO₂를 빼내는 역할도 합니다.',a:'올리면 산소 공급과 CO₂ 제거가 늘지만 거품도 늘어납니다.',x:'설정 대비 실제 유량 편차를 봅니다.'},
+'MFC-CO2':{t:'MFC-C CO₂ 유량 조절기',g:'Mass Flow Controller.',r:'pH가 상한을 넘으면 CO₂를 넣어 pH를 낮춥니다.',a:'올리면 pH가 내려가고 pCO₂가 올라갑니다.',x:'pCO₂가 과하면 성장과 품질에 영향을 줍니다.'},
+'MFC-N2':{t:'MFC-N 질소 유량 조절기',g:'Mass Flow Controller.',r:'반응하지 않는 가스로, 기포 부피를 유지해 CO₂를 빼내거나 DO를 낮출 때 씁니다.',a:'올리면 CO₂ 제거가 늘고 DO는 조금 내려갑니다.',x:'질소 과다 시 DO 저하에 주의합니다.'},
+'MFC-O2':{t:'MFC-O 순수 산소 유량 조절기',g:'Mass Flow Controller.',r:'미세 기포 스파저(SPG-M)로 순수 산소를 보냅니다. DO cascade 마지막 단계입니다.',a:'올리면 산소가 녹는 추진력이 약 5배로 커집니다. 가스 총량이 적어 CO₂ 제거에는 불리합니다.',x:'산소 사용량이 계속 늘면 세포 밀도나 kLa 문제를 의심합니다.'},
+'GF-D':{t:'GF-D 스파지 가스 무균 필터',g:'0.2 µm, 큰 기포 스파저 라인.',r:'공기, CO₂, 질소를 백에 넣기 전 마지막으로 무균 여과합니다.',a:'필터를 통과한 가스만 백으로 들어갑니다.',x:'사용 전후 완전성 시험을 합니다.'},
+'GF-O':{t:'GF-O 산소 라인 무균 필터',g:'0.2 µm, 미세 기포 스파저 라인.',r:'순수 산소를 무균 여과합니다.',a:'필터를 통과한 산소만 백으로 들어갑니다.',x:'사용 전후 완전성 시험을 합니다.'},
+'GF-OV':{t:'GF-OV 오버레이 가스 무균 필터',g:'0.2 µm.',r:'헤드스페이스로 가는 공기를 무균 여과합니다.',a:'-',x:'사용 전후 완전성 시험을 합니다.'},
+'CK-D':{t:'CK-D 역류 방지 밸브',g:'Check valve.',r:'가스가 멈췄을 때 배양액이 가스 라인과 필터로 거꾸로 흘러 들어가는 것을 막습니다.',a:'자동으로 작동합니다.',x:'역류로 필터가 젖으면 가스가 막히고 무균성이 깨집니다.'},
+'CK-O':{t:'CK-O 역류 방지 밸브',g:'Check valve.',r:'산소 라인으로 배양액이 역류하는 것을 막습니다.',a:'자동으로 작동합니다.',x:'역류로 필터가 젖으면 산소 공급이 막힙니다.'},
+'SPG-M':{t:'SPG-M 미세 기포 스파저',g:'Micro-sparger.',r:'작은 기포를 많이 만들어 접촉면이 넓어 산소 전달이 뛰어납니다. 주로 산소를 넣습니다.',a:'유량을 올리면 산소 전달이 빠르게 늘지만 거품도 많아집니다.',x:'작은 기포는 CO₂를 잘 못 빼냅니다.'},
+'SPG-D':{t:'SPG-D 큰 기포 스파저',g:'Drilled-hole sparger.',r:'큰 기포를 만들어 CO₂를 빼내는 데 유리합니다. 공기, 질소, CO₂가 들어갑니다.',a:'유량을 올리면 CO₂ 제거가 늘어납니다.',x:'산소 전달은 미세 스파저보다 약합니다.'},
+'HV-135':{t:'HV-135 오버레이 밸브',g:'HV는 수동 밸브입니다.',r:'백 상부 공간(헤드스페이스)으로 공기를 흘려 CO₂를 밀어내고 배기 흐름을 유지합니다.',a:'열면 헤드스페이스 가스가 교체됩니다.',x:'대형 설비에서는 산소 공급원으로 거의 효과가 없습니다.'},
+'EC-01':{t:'EC-01 배기 응축기',g:'Exhaust condenser.',r:'배기 가스를 식혀 수분을 응축시켜 백으로 돌려보냅니다. 배기 필터가 젖는 것을 막습니다.',a:'정지하면 배기 필터가 젖기 쉬워집니다.',x:'응축기 온도를 봅니다.'},
+'EF-01':{t:'EF-01 배기 필터 (가열식)',g:'Exhaust filter.',r:'배출 가스를 0.2 µm로 걸러 대기로 내보냅니다. 필터를 데워 수분 응축을 막습니다.',a:'정상 상태에서는 조작하지 않습니다.',x:'젖거나 거품이 올라와 막히면 백 압력이 올라갑니다. 백 과압의 가장 흔한 원인입니다.'},
+'PIC-160':{t:'PT-160 / PIC-160 백 압력 루프',g:'P는 압력, T는 전송기, I는 표시, C는 제어입니다.',r:'백 헤드스페이스 압력을 계속 잽니다. 설정값을 넘으면 경보를 울리고 가스 공급을 줄이거나 차단하고, 펌프를 멈춥니다.',a:'인터록 설정값은 백 제조사의 최대 허용 압력보다 낮게 잡습니다.',x:'압력이 서서히 오르면 배기 필터 막힘을 먼저 의심합니다.'},
+'PRV-01':{t:'PRV-01 백 압력 해소 밸브',g:'Pressure relief valve.',r:'PIC-160 인터록이 실패했을 때 마지막으로 열려 백이 터지는 것을 막습니다.',a:'수동 조작 대상이 아닙니다.',x:'작동했다면 무균성 영향 평가가 필요합니다.'},
+'LSHH-153':{t:'LE-153 / LSHH-153 거품 레벨 스위치',g:'L은 레벨, S는 스위치, HH는 매우 높음입니다.',r:'거품이 설정 높이에 닿으면 경보를 울리고 소포제를 넣게 합니다.',a:'작동하면 소포제 펌프가 돌아갑니다.',x:'센서 오작동 시 소포제가 과하게 들어갑니다.'},
+'P-B':{t:'Base 펌프 (연동식)',g:'Peristaltic pump.',r:'pH가 하한 아래로 내려가면 Na₂CO₃ 같은 base를 넣습니다. 튜브를 눌러 보내는 방식이라 액체가 펌프에 닿지 않습니다.',a:'넣을수록 나트륨이 쌓여 삼투압이 올라갑니다.',x:'누적 투입량이 평소보다 많으면 젖산 과축적을 의심합니다.'},
+'P-AF':{t:'소포제 펌프 (연동식)',g:'Peristaltic pump.',r:'거품 경보 시 소포제를 넣습니다.',a:'많이 넣으면 kLa가 떨어지고 후속 여과 부담이 늘어납니다.',x:'누적 투입량을 기록합니다.'},
+'P-F':{t:'Feed 펌프 (연동식)',g:'Peristaltic pump.',r:'농축 영양액을 정해진 일정에 넣습니다.',a:'투입 직후 포도당이 회복되어 그래프가 톱니 모양이 됩니다.',x:'투입량은 병 무게와 WIC-156 변화로 확인합니다.'},
+'QIC-144':{t:'QE-145 / QIC-144 pH 루프',g:'Q는 분석값, I는 표시, C는 제어입니다.',r:'pH를 6.9~7.1 안에 유지합니다. 아래면 base, 위면 CO₂를 넣습니다.',a:'deadband를 좁히면 base와 CO₂가 더 자주 들어갑니다.',x:'센서가 틀어질 수 있어 시료의 오프라인 pH로 보정합니다.'},
+'QIC-146':{t:'QE-146 / QIC-146 DO 루프',g:'Q는 분석값입니다. 광학식 DO 센서입니다.',r:'DO가 setpoint 아래로 내려가면 교반, 공기, 산소 순서로 공급을 늘립니다.',a:'setpoint를 올리면 교반과 가스 투입이 전반적으로 늘어납니다.',x:'센서 패치 오염이나 광섬유 연결을 확인합니다.'},
+'TIC-142':{t:'TE-142 / TIC-142 배양액 온도 루프',g:'T는 온도, I는 표시, C는 제어입니다.',r:'배양액 온도를 재고 TCU의 히터와 냉각 밸브에 출력을 보냅니다.',a:'setpoint를 36.5°C에서 33.5°C로 바꾸는 것이 온도 shift입니다.',x:'재킷 물 온도(TE-342)와 함께 보고 제어가 따라오는지 확인합니다.'},
+'WIC-156':{t:'WE-156 / WIC-156 무게 루프',g:'W는 무게입니다. WE-156은 로드셀입니다.',r:'배양액 양을 무게로 재고, 배지와 첨가액 투입량을 확인합니다.',a:'읽는 계기입니다.',x:'튜브가 당기거나 걸리면 무게 값이 틀어집니다.'},
+SMP:{t:'무균 샘플링 장치',g:'Sampling manifold.',r:'미리 멸균된 시료 백이나 주사기로 시료를 뽑아 VCD, 대사물, titer, 오프라인 pH를 잽니다.',a:'한 번 쓴 시료 라인은 다시 쓰지 않습니다.',x:'오염이 들어오기 쉬운 경로라 관리가 중요합니다.'},
+'PC-H':{t:'Harvest 튜브 클램프',g:'Pinch clamp.',r:'배양이 끝나면 열어 배양액을 청징 공정(원심분리, depth 여과)으로 보냅니다.',a:'열면 배양액이 Harvest 라인으로 나갑니다.',x:'배양 중에는 잠금 상태를 유지합니다.'},
+'P-340':{t:'P-340 순환 펌프',g:'재킷 물 순환 펌프입니다.',r:'재킷 물을 순환시킵니다.',a:'멈추면 온도 제어가 불가능해집니다.',x:'순환 정지 경보를 둡니다.'},
+'HEX-310':{t:'HEX-310 열교환기',g:'Heat exchanger.',r:'칠러 냉각수와 재킷 물이 섞이지 않은 채 열만 주고받습니다.',a:'XV-311이 열리면 재킷 물이 식습니다.',x:'효율이 떨어지면 냉각 속도가 느려집니다.'},
+'XV-311':{t:'XV-311 냉각수 자동 밸브',g:'X는 on/off 자동 밸브입니다.',r:'TIC-142 신호로 냉각수 공급을 열고 닫습니다.',a:'열면 재킷 물이 식어 배양액 온도가 내려갑니다.',x:'공기 구동 밸브라 계장 공기가 없으면 움직이지 않습니다.'},
+'H-302':{t:'H-302 히터',g:'재킷 물 히터입니다.',r:'재킷 물을 데웁니다.',a:'출력을 올리면 배양액 온도가 올라갑니다.',x:'과열 방지 인터록을 둡니다.'},
+'PSV-324':{t:'PSV-324 압력 안전 밸브',g:'P는 압력, S는 안전, V는 밸브입니다.',r:'재킷 루프 압력이 설정값을 넘으면 저절로 열립니다.',a:'수동 조작 대상이 아닙니다.',x:'작동했다면 원인을 조사합니다.'},
+'VP-330':{t:'VP-330 팽창 탱크',g:'Expansion vessel.',r:'물이 데워져 늘어난 부피를 흡수합니다.',a:'정상 운전 중에는 조작하지 않습니다.',x:'수위와 압력을 확인합니다.'},
+'PI-341':{t:'PI-341 압력 표시',g:'P는 압력, I는 표시입니다.',r:'재킷 루프 압력을 보여줍니다.',a:'읽는 계기입니다.',x:'압력이 오르면 팽창 탱크나 과열을 의심합니다.'},
+'TE-342':{t:'TE-342 재킷 물 온도 센서',g:'T는 온도, E는 센서입니다.',r:'재킷 물 온도를 잽니다. 배양액 온도와 비교해 제어 상태를 판단합니다.',a:'읽는 계기입니다.',x:'재킷 물과 배양액 온도 차이가 너무 크면 국소 과냉·과열을 의심합니다.'},
+'HV-321':{t:'HV-321 배수 밸브',g:'Hand valve.',r:'정비할 때 루프의 물을 뺍니다.',a:'운전 중 열면 루프 압력과 수위가 떨어집니다.',x:'운전 중에는 닫힘을 유지합니다.'},
+'HV-348':{t:'HV-348 펌프 토출 밸브',g:'Hand valve.',r:'정비할 때 펌프를 격리합니다.',a:'운전 중 닫으면 순환이 멈춥니다.',x:'운전 중에는 열림을 유지합니다.'}
+};
+
+const SC=[
+{id:'sip',n:'저장 용기 CIP/SIP',s:[
+ {t:'CV-01을 열어 CIP 세척액을 스프레이 볼로 뿌리고, 바닥으로 배출합니다. 헹굼수 전도도와 TOC로 세척 완료를 확인합니다.',c:['CV-01','SB-01','T-50','BV-01'],f:['ps-cip','ps-out']},
+ {t:'SIP 준비: XV-02 열림, XV-04 닫힘, 사이의 XV-03을 배수로 엽니다. 일회용 쪽은 이중으로 차단됩니다.',c:['BB'],f:['pb-bleed']},
+ {t:'SV-01을 열어 청정 스팀을 넣습니다. 스팀은 용기, 급기·배기 필터, BV-01 아래 배관, XV-04 앞까지 채웁니다.',c:['H-STEAM','SV-01','T-50','AFS-01','VFS-01','BV-01'],f:['hdr-steam','ps-steam','ps-out','ps-line1','ps-vent']},
+ {t:'응축수는 가장 낮은 곳의 스팀 트랩(ST-01)으로 빠집니다. 가장 차가운 지점인 TE-02가 121°C 이상을 정해진 시간 유지해야 합니다.',c:['ST-01','TE-02','PG-01','PSV-01'],f:['ps-trap']},
+ {t:'스팀을 닫고 AFS-01로 무균 공기를 넣어 양압을 유지하며 식힙니다. 진공이 생기면 VB-01이 백업으로 작동합니다.',c:['AFS-01','H-AIR','VB-01'],f:['hdr-air','ps-air']}]},
+{id:'xfer',n:'배지 무균 이송',s:[
+ {t:'감마 멸균된 일회용 어셈블리(무균 커넥터, 0.2 µm 필터, 튜브)를 SCN-01로 연결합니다. 여기가 스테인리스와 일회용의 경계입니다.',c:['SCN-01','MF-01'],f:[]},
+ {t:'XV-03(배수)을 닫고 XV-02와 XV-04를 엽니다.',c:['BB'],f:['ps-line1']},
+ {t:'AFS-01로 청정 공기를 넣어 용기 상부를 가압하고, BV-01을 엽니다.',c:['H-AIR','AFS-01','BV-01','T-50'],f:['hdr-air','ps-air','ps-out']},
+ {t:'배지가 MF-01을 지나며 여과 멸균되고, 클램프를 열면 백으로 들어갑니다. WIC-156 무게로 투입량을 확인합니다.',c:['MF-01','PC-M','BAG-100','WIC-156'],f:['ps-line1','su-media']},
+ {t:'이송 후 MF-01 완전성 시험에 합격해야 여과가 유효합니다. 튜브는 무균 절단·밀봉합니다.',c:['MF-01'],f:[]}]},
+{id:'do',n:'DO 저하 대응',s:[
+ {t:'세포가 늘어 DO가 setpoint 아래로 떨어지면 QIC-146이 감지합니다.',c:['QIC-146'],f:[],o:[]},
+ {t:'1단계: 교반 설정을 올립니다. SIC-130에서 SC-130을 거쳐 M-130이 빨라집니다.',c:['SIC-130','SC-130','M-130'],f:[],o:['ov-do1']},
+ {t:'2단계: 교반이 상한에 닿으면 공기 유량을 올립니다. 공기는 큰 기포 스파저로 들어갑니다.',c:['MFC-AIR','GF-D','CK-D','SPG-D'],f:['pg-air','pg-d'],o:['ov-do2']},
+ {t:'3단계: 그래도 부족하면 순수 산소를 미세 기포 스파저로 넣습니다.',c:['MFC-O2','GF-O','CK-O','SPG-M','G-SUP'],f:['pg-o'],o:['ov-do3']},
+ {t:'산소 비율이 높아지면 CO₂가 쌓이기 쉬워, 공기나 질소로 CO₂ 제거를 함께 봅니다. 배기는 응축기와 가열 필터를 지나 대기로 나갑니다.',c:['MFC-N2','EC-01','EF-01'],f:['pg-d','pg-exh'],o:[]}]},
+{id:'ph',n:'pH 제어',s:[
+ {t:'QE-145가 pH를 재고 QIC-144가 범위(6.9~7.1)와 비교합니다.',c:['QIC-144'],f:[],o:[]},
+ {t:'하한 아래로 내려가면(젖산 축적) Base 펌프가 돕니다.',c:['P-B'],f:['pl-base'],o:['ov-ph1']},
+ {t:'상한 위로 올라가면 CO₂를 큰 기포 스파저로 넣어 pH를 낮춥니다.',c:['MFC-CO2','GF-D','SPG-D'],f:['pg-d'],o:['ov-ph2']},
+ {t:'센서가 틀어지지 않았는지 무균 샘플링으로 시료를 뽑아 오프라인 pH로 확인합니다.',c:['SMP'],f:[],o:[]}]},
+{id:'press',n:'백 과압 보호',s:[
+ {t:'거품이나 수분으로 배기 필터(EF-01)가 막히기 시작하면 배기가 잘 빠지지 않습니다.',c:['EF-01','EC-01'],f:['pg-exh'],o:[]},
+ {t:'PT-160이 헤드스페이스 압력 상승을 감지하고 PIC-160이 경보를 울립니다.',c:['PIC-160'],f:[],o:[]},
+ {t:'설정값을 넘으면 인터록이 가스 공급을 줄이거나 차단하고 펌프를 멈춥니다.',c:['MFC-AIR','MFC-CO2','MFC-N2','MFC-O2','P-F'],f:[],o:['ov-p']},
+ {t:'그래도 오르면 마지막 수단으로 PRV-01이 열려 백 손상을 막습니다. 이 경우 무균성 영향 평가가 필요합니다.',c:['PRV-01'],f:[],o:[]}]},
+{id:'foam',n:'거품 경보',s:[
+ {t:'거품이 차오르면 LE-153이 감지해 LSHH-153이 작동합니다.',c:['LSHH-153'],f:[],o:[]},
+ {t:'소포제 펌프가 돌아 소포제를 넣습니다.',c:['P-AF'],f:['pl-af'],o:['ov-foam']},
+ {t:'거품을 방치하면 배기 필터가 젖어 막히고, 백 과압으로 이어집니다.',c:['EF-01','PIC-160'],f:['pg-exh'],o:[]}]},
+{id:'temp',n:'온도 shift',s:[
+ {t:'TIC-142의 setpoint를 36.5°C에서 33.5°C로 바꿉니다.',c:['TIC-142'],f:[],o:[]},
+ {t:'히터(H-302) 출력이 줄어듭니다.',c:['H-302'],f:[],o:['ov-t2']},
+ {t:'XV-311이 열려 칠러 냉각수가 열교환기(HEX-310)를 지나고 회수 헤더로 돌아갑니다.',c:['XV-311','HEX-310','H-CHWS','H-CHWR','CH-01'],f:['hdr-chws','pt-chw','pt-chwr','hdr-chwr'],o:['ov-t1']},
+ {t:'P-340이 식은 물을 재킷으로 돌려 배양액을 식힙니다.',c:['P-340','BAG-100'],f:['pt-p2hex','pt-hex2h','pt-sup','pj-sup','pj-ret','pt-ret'],o:[]},
+ {t:'재킷 물(TE-342)과 배양액(TE-142) 온도를 보며 목표에 완만하게 도달합니다.',c:['TE-342','TIC-142'],f:[],o:[]}]},
+{id:'air',n:'공정 공기 만들기',s:[
+ {t:'압축기(AC)가 외부 공기를 압축합니다.',c:['AC'],f:['pa1']},
+ {t:'저장 탱크(AT-001)가 압력을 완충하고 응축수를 뺍니다.',c:['AT-001'],f:['pa2']},
+ {t:'냉동식 제습기(RD-001)가 수분 대부분을 제거합니다.',c:['RD-001'],f:['pa3']},
+ {t:'라인 필터(AF-001)가 입자를 걸러 흡착식 제습기를 보호합니다.',c:['AF-001'],f:['pa4']},
+ {t:'흡착식 제습기(DD-001)가 이슬점 -40°C까지 말립니다.',c:['DD-001'],f:['pa5']},
+ {t:'코어레싱 필터(AF-002)를 지나 청정 공기 헤더로 들어갑니다.',c:['AF-002','H-AIR'],f:['pa6','hdr-air']}]}
+];
+
+/* ===== abbreviation glossary: [약자, 영문 풀이({ }=약자를 이루는 글자), 뜻, 해당 기기 id] ===== */
+const GL=[
+{h:'공정 공기 생성',tab:'sub',r:[
+ ['AC','{A}ir {C}ompressor','공기 압축기 (001, 002 두 대)',['AC']],
+ ['AT','{A}ir receiver {T}ank','공기 저장 탱크',['AT-001']],
+ ['RD','{R}efrigerated air {D}ryer','냉동식 제습기',['RD-001']],
+ ['AF','{A}ir {F}ilter','공기 필터. 001은 1 µm 라인 필터, 002는 0.01 µm 코어레싱 필터',['AF-001','AF-002']],
+ ['DD','{D}esiccant {D}ryer','흡착식 제습기',['DD-001']]]},
+{h:'가스 공급 · 유틸리티',tab:'sub',r:[
+ ['PCV-O / C / N','{P}ressure {C}ontrol {V}alve','압력 조절(감압) 밸브. 뒤 글자는 가스 종류로 O는 O₂, C는 CO₂, N은 N₂',['G-SUP']],
+ ['PI','{P}ressure {I}ndicator','압력 표시계',['G-SUP','PI-341']],
+ ['SUB','{S}ingle-{U}se {B}ioreactor','일회용 배양기. 오각형 안의 SUB는 배양기 쪽으로 이어진다는 표시',['G-SUP']],
+ ['CSG','{C}lean {S}team {G}enerator','청정 스팀 발생기',['CSG-01']],
+ ['CH','{CH}iller','칠러 (냉각수를 만드는 장치)',['CH-01']],
+ ['CHWS','{CH}illed {W}ater {S}upply','냉각수 공급 (도면에는 "냉각수 공급" 헤더)',['H-CHWS']],
+ ['CHWR','{CH}illed {W}ater {R}eturn','냉각수 회수 (도면에는 "냉각수 회수" 헤더)',['H-CHWR']]]},
+{h:'배지 저장 용기 (스테인리스)',tab:'sub',r:[
+ ['T','{T}ank','용기. T-50은 배지 저장 용기',['T-50']],
+ ['CIP','{C}leaning {I}n {P}lace','설비를 분해하지 않고 제자리에서 세척',['CV-01']],
+ ['SIP','{S}terilization {I}n {P}lace','제자리 스팀 멸균. Steam In Place라고도 풉니다',['SV-01']],
+ ['CV','{C}IP {V}alve','CIP 세척액 공급 밸브. 다른 도면에서는 CV를 Control Valve(조절 밸브)로 쓰기도 합니다',['CV-01']],
+ ['SB','{S}pray {B}all','스프레이 볼 (세척액 분사 노즐)',['SB-01']],
+ ['AFS','{A}ir {F}ilter, {S}terile','무균 공기 필터 (급기, 0.2 µm)',['AFS-01']],
+ ['SV','{S}team {V}alve','스팀 공급 밸브',['SV-01']],
+ ['VFS','{V}ent {F}ilter, {S}terile','무균 배기 필터',['VFS-01']],
+ ['PSV','{P}ressure {S}afety {V}alve','압력 안전 밸브',['PSV-01','PSV-324']],
+ ['VB','{V}acuum {B}reaker','진공 방지 장치',['VB-01']],
+ ['PG','{P}ressure {G}auge','현장 압력계',['PG-01']],
+ ['TE','{T}emperature {E}lement','온도 센서',['TE-01','TE-02','TE-342','TIC-142']],
+ ['BV','{B}ottom {V}alve','하부 배출 밸브',['BV-01']],
+ ['ST','{S}team {T}rap','스팀 트랩 (응축수만 빼는 장치)',['ST-01']],
+ ['XV','{X} (on/off) {V}alve','자동 개폐 밸브. X는 표준에서 따로 분류가 없는 글자인데, 열림과 닫힘만 하는 자동 밸브에 관례로 씁니다',['BB','XV-311']],
+ ['SCN','{S}terile {C}o{N}nector','무균 커넥터',['SCN-01']],
+ ['MF','{M}edia {F}ilter','배지 무균 여과 필터 (0.2 µm)',['MF-01']],
+ ['PC-M / H','{P}inch {C}lamp','튜브 클램프. M은 Media(배지) 라인, H는 Harvest(회수) 라인',['PC-M','PC-H']]]},
+{h:'일회용 배양기 (SUB)',tab:'sub',r:[
+ ['BAG','Bag','일회용 배양 백. 약자가 아니라 단어 그대로입니다',['BAG-100']],
+ ['BHR','{B}ag {H}olde{R}','백을 받치는 스테인리스 홀더 (재킷 포함)',['BAG-100']],
+ ['M','{M}otor','교반 모터',['M-130']],
+ ['SC','{S}peed {C}ontroller','속도 제어 장치 (현장 인버터)',['SC-130']],
+ ['SIC','{S}peed {I}ndicating {C}ontroller','속도 표시·제어기',['SIC-130']],
+ ['MFC-A / C / N / O','{M}ass {F}low {C}ontroller','질량 유량 조절기. 뒤 글자는 가스 종류로 A는 Air, C는 CO₂, N은 N₂, O는 O₂',['MFC-AIR','MFC-CO2','MFC-N2','MFC-O2']],
+ ['GF-D / O / OV','{G}as {F}ilter','가스 무균 필터 (0.2 µm). D는 Drilled-hole 스파저 라인, O는 Oxygen 라인, OV는 OVerlay 라인',['GF-D','GF-O','GF-OV']],
+ ['CK-D / O','{C}hec{K} valve','역류 방지 밸브. D와 O는 위와 같은 라인 구분',['CK-D','CK-O']],
+ ['SPG-M / D','{SP}ar{G}er','스파저 (기포 분사기). M은 Micro(미세 기포), D는 Drilled-hole(큰 기포)',['SPG-M','SPG-D']],
+ ['HV','{H}and {V}alve','수동 밸브',['HV-135','HV-321','HV-348']],
+ ['EC','{E}xhaust {C}ondenser','배기 응축기',['EC-01']],
+ ['EF','{E}xhaust {F}ilter','배기 필터',['EF-01']],
+ ['PT','{P}ressure {T}ransmitter','압력 전송기',['PIC-160']],
+ ['PIC','{P}ressure {I}ndicating {C}ontroller','압력 표시·제어기',['PIC-160']],
+ ['PRV','{P}ressure {R}elief {V}alve','압력 해소 밸브',['PRV-01']],
+ ['LE','{L}evel {E}lement','레벨(거품) 센서',['LSHH-153']],
+ ['LSHH','{L}evel {S}witch {H}igh-{H}igh','레벨 스위치, 매우 높음 경보',['LSHH-153']],
+ ['QE','{Q}uality {E}lement','분석 센서 (pH 전극, DO 센서)',['QIC-144','QIC-146']],
+ ['QIC','{Q}uality {I}ndicating {C}ontroller','분석값 표시·제어기. 144는 pH, 146은 DO. ISA 표준은 분석값에 A(Analysis)를 쓰고, Q로 쓰는 도면도 있습니다',['QIC-144','QIC-146']],
+ ['TIC','{T}emperature {I}ndicating {C}ontroller','온도 표시·제어기',['TIC-142']],
+ ['WE','{W}eight {E}lement','무게 센서 (로드셀)',['WIC-156']],
+ ['WIC','{W}eight {I}ndicating {C}ontroller','무게 표시·제어기',['WIC-156']]]},
+{h:'재킷 온도 조절 장치 (TCU)',tab:'sub',r:[
+ ['TCU','{T}emperature {C}ontrol {U}nit','재킷 온도 조절 장치',[]],
+ ['P','{P}ump','펌프. P-340은 재킷 물 순환 펌프',['P-340']],
+ ['HEX','{H}eat {EX}changer','열교환기',['HEX-310']],
+ ['H','{H}eater','히터',['H-302']],
+ ['VP','{V}essel, {P}ressure','팽창 탱크 (압력 용기). 이 도면에서 정한 표기입니다',['VP-330']],
+ ['PSV · PI · TE · HV · XV','위 표와 같음','PSV-324 안전 밸브, PI-341 압력 표시, TE-342 온도 센서, HV-321/348 수동 밸브, XV-311 자동 개폐 밸브',['PSV-324','PI-341','TE-342','HV-321','HV-348','XV-311']]]},
+{h:'5L 벤치탑 도면의 약자',tab:'bench',r:[
+ ['M','{M}otor','교반 모터',['b-mot']],
+ ['DO','{D}issolved {O}xygen','용존산소',['b-do']],
+ ['pH','{p}otential of {H}ydrogen','수소 이온 농도 지수',['b-ph']],
+ ['RTD','{R}esistance {T}emperature {D}etector','측온 저항체 (온도 센서의 한 종류)',['b-tw']],
+ ['PBS','{P}hosphate-{B}uffered {S}aline','인산 완충 식염수',['b-harvb']],
+ ['vvm','{v}olume of gas per {v}olume of liquid per {m}inute','1분당 배양액 부피 대비 가스 부피',['b-gas']],
+ ['rpm','{r}evolutions {p}er {m}inute','분당 회전수',['b-mot']],
+ ['TPE','{T}hermo{P}lastic {E}lastomer','열가소성 탄성체. 용접이 되는 튜브 재질',['b-feedb']],
+ ['PTFE','{P}oly{T}etra{F}luoro{E}thylene','폴리테트라플루오로에틸렌 (소수성 필터 재질)',['b-base']],
+ ['GL45','{G}{l}asgewinde 45','독일어로 유리 나사. 유리병 나사 입구 규격, 지름 45 mm',['b-base']],
+ ['VCD','{V}iable {C}ell {D}ensity','생존 세포 밀도',['b-smp']]]},
+{h:'설명에 나오는 공정 용어',tab:'all',r:[
+ ['P&ID','{P}iping {&} {I}nstrumentation {D}iagram','배관 계장도',[]],
+ ['DO','{D}issolved {O}xygen','용존산소',[]],
+ ['kLa','k{L}·{a}','산소 전달 용량 계수. kL은 액체 쪽 물질 전달 계수, a는 부피당 기포 접촉 면적',[]],
+ ['pCO₂','{p}artial pressure of {CO₂}','CO₂ 분압',[]],
+ ['VCD','{V}iable {C}ell {D}ensity','생존 세포 밀도',[]],
+ ['TOC','{T}otal {O}rganic {C}arbon','총 유기 탄소 (세척 확인 지표)',[]],
+ ['E&L','{E}xtractables {&} {L}eachables','추출물과 용출물',[]]]}
+];
+const AB={};GL.forEach(s=>s.r.forEach(r=>(r[3]||[]).forEach(id=>(AB[id]=AB[id]||[]).push(r))));
+const enH=x=>x.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])).replace(/\{(.+?)\}/g,'<b>$1</b>');
+const enT=x=>x.replace(/[{}]/g,'');
+
+const NS='http://www.w3.org/2000/svg';let svg=document.getElementById('dwg');
+function E(tag,a,p){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);(p||svg).appendChild(e);return e}
+const defs=E('defs',{});
+const pat=E('pattern',{id:'gp',width:20,height:20,patternUnits:'userSpaceOnUse'},defs);
+E('path',{d:'M20 0H0V20',fill:'none',stroke:'var(--grid)','stroke-width':1},pat);
+E('rect',{x:0,y:0,width:1400,height:990,fill:'url(#gp)'});
+let Lz=E('g',{}),Lp=E('g',{}),Ls=E('g',{}),Lo=E('g',{}),Lc=E('g',{});
+const P={},C={},O={};
+function pipe(id,d,k){const e=E('path',{d,class:'pipe '+k},Lp);if(id)P[id]=e;return e}
+function sig(d,g){return E('path',{d,class:'sigl'},g||Ls)}
+function ov(id,d){O[id]=E('path',{d,class:'ov'},Lo)}
+function T(g,x,y,s,c,a){const t=E('text',{x,y,class:c||'tg','text-anchor':a||'middle','dominant-baseline':'central'},g);t.textContent=s;return t}
+function G(id){const g=E('g',{class:'cmp','data-id':id,tabindex:0,role:'button','aria-label':D[id]?D[id].t:id},Lc);(C[id]=C[id]||[]).push(g);const tt=E('title',{},g);tt.textContent=(D[id]?D[id].t:id)+(AB[id]?' | '+AB[id].map(r=>r[0]+' = '+enT(r[1])).join(', '):'');return g}
+function box(g,x,y,w,h,a,b,rx){E('rect',{x,y,width:w,height:h,rx:rx||4,class:'eq'},g);if(a)T(g,x+w/2,y+h/2-(b?7:0),a,'tg');if(b)T(g,x+w/2,y+h/2+8,b,'ts')}
+function inst(g,cx,cy,l,n,sh){if(sh)E('rect',{x:cx-15,y:cy-15,width:30,height:30,class:'eq'},g);E('circle',{cx,cy,r:13,class:'eq'},g);T(g,cx,cy-4,l,'ti');T(g,cx,cy+6,n,'ti')}
+function valve(g,cx,cy,v){E('rect',{x:cx-12,y:cy-12,width:24,height:24,class:'hit'},g);
+ if(v){E('polygon',{points:`${cx-6},${cy-8} ${cx+6},${cy-8} ${cx},${cy}`,class:'vlv'},g);E('polygon',{points:`${cx-6},${cy+8} ${cx+6},${cy+8} ${cx},${cy}`,class:'vlv'},g)}
+ else{E('polygon',{points:`${cx-8},${cy-6} ${cx-8},${cy+6} ${cx},${cy}`,class:'vlv'},g);E('polygon',{points:`${cx+8},${cy-6} ${cx+8},${cy+6} ${cx},${cy}`,class:'vlv'},g)}}
+function check(g,cx,cy){E('rect',{x:cx-12,y:cy-12,width:24,height:24,class:'hit'},g);E('polygon',{points:`${cx-6},${cy-7} ${cx+6},${cy-7} ${cx},${cy+5}`,class:'vlv'},g);E('path',{d:`M${cx-7} ${cy+7} H${cx+7}`,class:'vlv','stroke-width':1.6},g)}
+function filt(g,x,y,w,h){E('rect',{x,y,width:w,height:h,rx:3,class:'eq'},g);E('path',{d:w>h?`M${x+w/2} ${y+3} V${y+h-3}`:`M${x+3} ${y+h/2} H${x+w-3}`,class:'eqd'},g)}
+function pump(g,cx,cy,r,dir){E('circle',{cx,cy,r,class:'eq'},g);const a={right:0,left:180,up:-90,down:90}[dir||'right'];E('polygon',{points:`${cx-r*.4},${cy-r*.5} ${cx-r*.4},${cy+r*.5} ${cx+r*.55},${cy}`,class:'vlv',transform:`rotate(${a} ${cx} ${cy})`},g)}
+function clamp(g,cx,cy,v){E('rect',{x:cx-12,y:cy-12,width:24,height:24,class:'hit'},g);E('path',{d:v?`M${cx-7} ${cy-3} H${cx+7} M${cx-7} ${cy+3} H${cx+7}`:`M${cx-3} ${cy-7} V${cy+7} M${cx+3} ${cy-7} V${cy+7}`,class:'vlv','stroke-width':2},g)}
+function relief(g,cx,cy){valve(g,cx,cy,false);E('path',{d:`M${cx} ${cy-8} V${cy-22} M${cx-5} ${cy-17} L${cx} ${cy-22} L${cx+5} ${cy-17}`,class:'vlv'},g)}
+function conn(g,x,y,w,l,dir){const h=14;const pts=dir==='down'?`${x-h/2},${y} ${x+h/2},${y} ${x+h/2},${y+w-6} ${x},${y+w} ${x-h/2},${y+w-6}`:`${x},${y-h/2} ${x+w-6},${y-h/2} ${x+w},${y} ${x+w-6},${y+h/2} ${x},${y+h/2}`;E('polygon',{points:pts,class:'eq'},g);if(l)T(g,dir==='down'?x:x+w/2-3,dir==='down'?y+w/2-3:y,l,'ti')}
+function zone(x,y,w,h,t,a){E('rect',{x,y,width:w,height:h,rx:8,class:'zone'},Lz);T(Lz,a==='end'?x+w-12:x+12,y+18,t,'zt',a||'start')}
+function atm(x,y){pipe(null,`M${x-5} ${y+6} L${x} ${y} L${x+5} ${y+6}`,'p-vent');T(Lz,x+8,y+4,'대기','ts','start')}
+
+/* zones */
+zone(20,20,700,200,'공정 공기 생성');
+zone(740,20,360,200,'O₂ · CO₂ · N₂ 공급');
+zone(1120,20,260,200,'유틸리티 공급원');
+zone(20,350,430,580,'배지 저장 용기 (스테인리스, CIP/SIP)');
+zone(480,350,530,580,'일회용 배양기 (SUB)','end');
+zone(1030,350,350,580,'재킷 온도 조절 장치 (TCU)');
+T(Lz,20,232,'유틸리티 헤더','zt','start');
+
+/* headers */
+[['H-AIR','hdr-air',250,'청정 공기','p-air'],['H-STEAM','hdr-steam',272,'청정 스팀','p-steam'],['H-CHWS','hdr-chws',294,'냉각수 공급','p-chw'],['H-CHWR','hdr-chwr',316,'냉각수 회수','p-chw']].forEach(([id,pid,y,l,k])=>{
+ pipe(pid,`M138 ${y} H1380`,k+' hdr');
+ const g=G(id);E('path',{d:`M138 ${y} H1380`,stroke:'transparent','stroke-width':12,fill:'none'},g);
+ E('rect',{x:20,y:y-9,width:112,height:18,rx:3,class:'eq'},g);T(g,76,y,l,'ts');});
+
+/* A: air */
+pipe('pa1','M120 85 H150 V165 M120 165 H150 M150 125 H180','p-air');
+pipe('pa2','M234 100 H280','p-air');pipe('pa3','M352 100 H390','p-air');pipe('pa4','M424 100 H460','p-air');
+pipe('pa5','M530 100 H580','p-air');pipe('pa6','M614 100 H660 V250','p-air');
+{let g=G('AC');box(g,50,60,70,50,'AC-001','압축기');box(g,50,140,70,50,'AC-002','압축기')}
+{let g=G('AT-001');E('rect',{x:180,y:55,width:54,height:130,rx:27,class:'eq'},g);T(g,207,112,'AT-001','tg');T(g,207,128,'저장 탱크','ts')}
+{let g=G('RD-001');box(g,280,70,72,60,'RD-001','냉동 제습')}
+{let g=G('AF-001');filt(g,390,78,34,44);T(g,407,138,'AF-001','tg');T(g,407,152,'1 µm','ts')}
+{let g=G('DD-001');E('rect',{x:460,y:55,width:30,height:120,rx:12,class:'eq'},g);E('rect',{x:500,y:55,width:30,height:120,rx:12,class:'eq'},g);E('path',{d:'M490 70 H500 M490 160 H500',class:'eqd'},g);T(g,495,192,'DD-001','tg');T(g,495,206,'흡착 제습','ts')}
+{let g=G('AF-002');filt(g,580,78,34,44);T(g,597,138,'AF-002','tg');T(g,597,152,'0.01 µm','ts')}
+
+/* G: special gases */
+{let g=G('G-SUP');[[790,'O₂','PCV-O'],[900,'CO₂','PCV-C'],[1010,'N₂','PCV-N']].forEach(([x,l,pc])=>{
+ E('rect',{x:x-18,y:48,width:36,height:84,rx:14,class:'eq'},g);T(g,x,90,l,'tg');
+ E('path',{d:`M${x} 132 V178`,class:'pipe p-air'},g);valve(g,x,150,true);E('rect',{x:x-5,y:137,width:10,height:5,class:'eq'},g);
+ T(g,x-10,150,pc,'ts','end');E('path',{d:`M${x} 162 H${x+26}`,class:'sigl'},g);inst(g,x+39,162,'PI','');conn(g,x,178,26,'SUB','down')});
+ T(g,920,212,'감압 후 배양기 가스 패널로','ts')}
+
+/* U: utility sources */
+{let g=G('CSG-01');pipe(null,'M1190 110 V272','p-steam');box(g,1150,60,80,50,'CSG-01','청정 스팀')}
+{let g=G('CH-01');pipe(null,'M1290 110 V294 M1340 110 V316','p-chw');box(g,1270,60,90,50,'CH-01','칠러')}
+
+/* B: stainless media vessel */
+pipe('ps-air','M100 250 V470','p-air');
+pipe('ps-steam','M130 272 V470','p-steam');
+pipe('ps-cip','M56 402 H175 V483','p-tw');
+pipe('ps-vent','M215 470 V380','p-vent');atm(215,374);
+pipe(null,'M230 500 H282 M230 545 H282 M230 590 H279','p-vent');
+pipe('ps-out','M160 700 V760','p-prod');
+pipe('ps-trap','M185 760 V800','p-steam');
+pipe('ps-line1','M160 760 H350','p-prod');
+pipe('pb-bleed','M290 760 V820','p-steam');
+pipe('su-media','M372 760 H660','p-su');
+{let g=G('T-50');E('rect',{x:80,y:540,width:160,height:140,rx:16,class:'eqd'},g);E('rect',{x:90,y:470,width:140,height:230,rx:22,class:'eq'},g);T(g,160,590,'T-50','tg');T(g,160,606,'배지 저장 용기','ts');T(g,160,665,'재킷','ts')}
+{let g=G('CV-01');conn(g,24,402,32,'CIP');valve(g,74,402,false);T(g,74,388,'CV-01','ts')}
+{let g=G('SB-01');E('circle',{cx:175,cy:490,r:7,class:'eq'},g);E('path',{d:'M175 498 V506 M167 495 L161 501 M183 495 L189 501',class:'eqd'},g)}
+{let g=G('AFS-01');filt(g,90,398,20,28);T(g,84,432,'AFS-01','ts','end')}
+{let g=G('SV-01');valve(g,130,445,true);T(g,139,449,'SV-01','ts','start')}
+{let g=G('VFS-01');filt(g,205,398,20,28);T(g,231,412,'VFS-01','ts','start')}
+{let g=G('PSV-01');relief(g,290,500);T(g,302,504,'PSV-01','ts','start')}
+{let g=G('VB-01');valve(g,290,545,false);T(g,302,549,'VB-01 진공 방지','ts','start')}
+{let g=G('PG-01');inst(g,292,590,'PG','01')}
+{let g=G('TE-01');sig('M63 610 H80');inst(g,50,610,'TE','01')}
+{let g=G('BV-01');valve(g,160,728,true);T(g,150,732,'BV-01','ts','end')}
+{let g=G('ST-01');box(g,165,800,40,24,'ST-01');T(g,185,840,'배수','ts')}
+{let g=G('TE-02');sig('M185 795 H222');inst(g,235,795,'TE','02')}
+{let g=G('BB');valve(g,265,760,false);valve(g,290,792,true);valve(g,315,760,false);T(g,265,746,'XV-02','ts');T(g,315,746,'XV-04','ts');T(g,300,806,'XV-03','ts','start');T(g,290,836,'배수','ts')}
+E('path',{d:'M338 690 V905',class:'bnd'},Lz);T(Lz,338,680,'SIP 경계','ts');
+T(Lz,330,905,'스테인리스 (CIP/SIP)','ts','end');T(Lz,346,905,'일회용 (감마 멸균)','ts','start');
+{let g=G('SCN-01');E('rect',{x:346,y:754,width:10,height:12,rx:2,class:'eq'},g);E('rect',{x:358,y:754,width:10,height:12,rx:2,class:'eq'},g);E('rect',{x:340,y:746,width:34,height:28,class:'hit'},g);T(g,357,782,'SCN-01','ts')}
+{let g=G('MF-01');E('rect',{x:382,y:744,width:32,height:32,rx:10,class:'eq'},g);E('path',{d:'M398 748 V772',class:'eqd'},g);T(g,398,736,'MF-01','ts');T(g,398,790,'0.2 µm','ts')}
+{let g=G('PC-M');clamp(g,462,760,false)}
+
+/* C: SUB */
+pipe('pg-air','M505 250 V441 H530','p-air');
+pipe('pg-ov','M505 420 H672 V480','p-air');
+pipe('pg-d','M600 441 H620 V815 H765 V772 M600 471 H620 M600 501 H620','p-air');
+pipe('pg-o','M600 531 H640 V800 H710 V772','p-air');
+pipe('pg-exh','M800 480 V386','p-vent');atm(800,380);
+pipe('pl-base','M930 560 H882 M858 560 H820','p-su');
+pipe('pl-af','M930 595 H882 M858 595 H820','p-su');
+pipe('pl-feed','M930 630 H882 M858 630 H820','p-su');
+pipe('pl-harv','M790 780 V880 H1000','p-su');
+pipe(null,'M820 765 H850','p-su');
+pipe(null,'M820 525 H877','p-vent');
+pipe('pj-sup','M1040 700 H820','p-jk');
+pipe('pj-ret','M820 740 H1030','p-jk');
+T(Lz,940,692,'재킷 공급','ts');T(Lz,940,732,'재킷 회수','ts');
+T(Lz,996,872,'Harvest(청징)으로','ts','end');
+{let g=G('BAG-100');E('rect',{x:660,y:480,width:160,height:300,rx:18,class:'eq'},g);E('rect',{x:668,y:560,width:144,height:212,rx:12,class:'eqd'},g);T(g,700,528,'BAG-100','tg');T(g,700,544,'일회용 백','ts')}
+{let g=G('M-130');E('path',{d:'M740 455 V720 M718 640 H762 M718 705 H762',class:'vlv','stroke-width':2.4},g);E('circle',{cx:740,cy:440,r:15,class:'eq'},g);T(g,740,440,'M','tg')}
+sig('M700 397 H727');sig('M740 410 V425');
+{let g=G('SC-130');inst(g,740,397,'SC','130')}
+{let g=G('SIC-130');inst(g,685,397,'SIC','130',true)}
+[['MFC-AIR',430,'MFC-A 공기',null],['MFC-CO2',460,'MFC-C CO₂','CO₂'],['MFC-N2',490,'MFC-N 질소','N₂'],['MFC-O2',520,'MFC-O 산소','O₂']].forEach(([id,y,l,c])=>{let g=G(id);if(c)conn(g,497,y+11,30,c);box(g,530,y,70,22,null);T(g,565,y+11,l,'ts')});
+{let g=G('GF-D');filt(g,610,600,20,24);T(g,604,612,'GF-D','ts','end')}
+{let g=G('CK-D');check(g,620,650);T(g,610,650,'CK-D','ts','end')}
+{let g=G('GF-O');filt(g,630,570,20,24);T(g,656,582,'GF-O','ts','start')}
+{let g=G('CK-O');check(g,640,620);T(g,650,620,'CK-O','ts','start')}
+{let g=G('GF-OV');filt(g,662,440,20,24)}
+{let g=G('HV-135');valve(g,600,420,false);T(g,600,406,'HV-135','ts')}
+{let g=G('SPG-M');E('path',{d:'M692 765 H728',class:'vlv','stroke-width':3},g);[696,704,712,720,728].forEach(x=>E('circle',{cx:x,cy:759,r:1.6,class:'eq'},g));E('rect',{x:688,y:752,width:44,height:20,class:'hit'},g)}
+{let g=G('SPG-D');E('path',{d:'M747 765 H783',class:'vlv','stroke-width':3},g);[753,765,777].forEach(x=>E('circle',{cx:x,cy:758,r:3,class:'eq'},g));E('rect',{x:743,y:750,width:44,height:22,class:'hit'},g)}
+{let g=G('EC-01');box(g,785,445,30,22,null);E('path',{d:'M790 456 H810',class:'eqd'},g);T(g,820,456,'EC-01','ts','start')}
+{let g=G('EF-01');filt(g,790,400,20,30);T(g,816,414,'EF-01','ts','start')}
+sig('M806 500 L857 428');
+{let g=G('LSHH-153');E('circle',{cx:805,cy:505,r:4.5,class:'eq'},g);inst(g,870,420,'LSHH','153',true)}
+{let g=G('PIC-160');sig('M820 492 H857',g);sig('M883 485 H915',g);inst(g,870,485,'PT','160');inst(g,930,485,'PIC','160',true)}
+{let g=G('PRV-01');relief(g,885,525);T(g,897,529,'PRV-01','ts','start')}
+[['P-B',560,'Base'],['P-AF',595,'소포제'],['P-F',630,'Feed']].forEach(([id,y,l])=>{let g=G(id);pump(g,870,y,12,'left');box(g,930,y-12,56,24,null);T(g,958,y,l,'ts')});
+sig('M656 670 H555');sig('M656 700 H555');sig('M656 730 H555');
+[['QIC-144',670,'QIC','144'],['QIC-146',700,'QIC','146'],['TIC-142',730,'TIC','142']].forEach(([id,y,l,n])=>{let g=G(id);E('circle',{cx:660,cy:y,r:4.5,class:'eq'},g);inst(g,540,y,l,n,true)});
+{let g=G('WIC-156');E('polygon',{points:'664,795 680,795 672,780',class:'vlv'},g);E('polygon',{points:'800,795 816,795 808,780',class:'vlv'},g);sig('M814 792 L834 810',g);sig('M858 818 H915',g);inst(g,845,818,'WE','156');inst(g,930,818,'WIC','156',true)}
+{let g=G('SMP');valve(g,836,765,false);E('rect',{x:850,y:758,width:22,height:14,rx:3,class:'eq'},g);T(g,878,765,'무균 샘플링','ts','start')}
+{let g=G('PC-H');clamp(g,790,845,true);T(g,800,845,'PC-H','ts','start')}
+
+/* D: TCU */
+pipe('pt-ret','M1030 740 H1110 V634','p-jk');
+pipe('pt-p2hex','M1110 606 V560 H1205 V580','p-jk');
+pipe('pt-hex2h','M1205 660 V705 H1270','p-jk');
+pipe('pt-sup','M1290 675 V500 H1040 V700','p-jk');
+pipe('pt-chw','M1255 294 V620 H1230','p-chw');
+pipe('pt-chwr','M1230 645 H1345 V316','p-chw');
+pipe('pt-vp','M1110 740 V780','p-jk');
+pipe(null,'M1110 860 V905','p-jk');
+{let g=G('P-340');pump(g,1110,620,14,'up');T(g,1130,624,'P-340','ts','start')}
+{let g=G('HV-348');valve(g,1110,583,true);T(g,1120,583,'HV-348','ts','start')}
+{let g=G('HEX-310');E('rect',{x:1180,y:580,width:50,height:80,rx:4,class:'eq'},g);E('path',{d:'M1188 600 L1222 608 L1188 616 L1222 624 L1188 632',class:'eqd'},g);T(g,1205,590,'HEX','ti');T(g,1205,648,'310','ti')}
+{let g=G('H-302');box(g,1270,675,40,60,'H-302')}
+{let g=G('XV-311');valve(g,1255,530,true);E('rect',{x:1249,y:510,width:12,height:8,class:'eq'},g);E('path',{d:'M1255 518 V522',class:'eqd'},g);T(g,1265,534,'XV-311','ts','start')}
+{let g=G('PSV-324');relief(g,1160,500);T(g,1160,466,'PSV-324','ts')}
+{let g=G('VP-330');E('rect',{x:1085,y:780,width:50,height:80,rx:22,class:'eq'},g);T(g,1110,814,'VP','ti');T(g,1110,826,'330','ti')}
+{let g=G('PI-341');sig('M1135 805 H1150',g);inst(g,1165,805,'PI','341')}
+{let g=G('TE-342');pipe(null,'M1070 728 V740','p-jk');inst(g,1070,715,'TE','342')}
+{let g=G('HV-321');valve(g,1110,885,true);T(g,1122,889,'HV-321 배수','ts','start')}
+
+/* overlays */
+ov('ov-do1','M525 700 H492 V397 H670');ov('ov-do2','M492 448 H530');ov('ov-do3','M492 541 H530');
+ov('ov-ph1','M540 685 V912 H895 V560 H882');ov('ov-ph2','M525 670 H494 V482 H530');
+ov('ov-t1','M540 745 V918 H1372 V530 H1268');ov('ov-t2','M1372 705 H1310');
+ov('ov-foam','M885 420 H905 V595 H882');
+ov('ov-p','M930 470 V372 H565 V430');
+
+/* title block */
+E('rect',{x:1030,y:942,width:350,height:40,rx:4,class:'eq'});
+T(svg,1042,955,'일회용 배양기 공정 P&ID (교육용)','tg','start');T(svg,1042,971,'실제 설계를 단순화한 예시, 태그와 설정값은 가상','ts','start');
+
+/* ===== SUB tab: extra scenarios ===== */
+SC.forEach(s=>s.tab=s.tab||'sub');
+SC.push(
+{id:'cal',tab:'sub',n:'센서 교정',s:[
+ {t:'pH 센서는 보통 멸균 전에 두 점으로 교정합니다. pH 7.0 buffer로 zero, pH 4.01(또는 10.01) buffer로 span을 잡습니다. 일회용 센서는 미리 교정되어 나오는 경우가 많습니다.',c:['QIC-144'],f:[]},
+ {t:'DO 0% 기준: 질소로 녹아 있는 산소를 모두 몰아낸 상태에서 zero를 잡습니다. 센서 케이블을 뺀 상태의 전기적 0으로 잡는 방법도 있습니다.',c:['MFC-N2','SPG-D','QIC-146'],f:['pg-d']},
+ {t:'DO 100% 기준: 공기로 충분히 포화시킨 뒤 span을 잡습니다. 배지에 CO₂ 5%를 섞어 포화시켰다면 산소 분압이 그만큼 낮으므로 95%로 입력합니다.',c:['MFC-AIR','MFC-CO2','SPG-D','QIC-146'],f:['pg-air','pg-d']},
+ {t:'운전 중에는 시료를 외부 측정기로 재서 차이가 기준을 넘으면 1점 보정(restandardization)을 합니다.',c:['SMP','QIC-144'],f:[]}]},
+{id:'samp',tab:'sub',n:'일일 샘플링·재교정',s:[
+ {t:'무균 샘플링 장치로 시료를 뽑습니다. 한 번 쓴 시료 라인은 다시 쓰지 않습니다.',c:['SMP'],f:[]},
+ {t:'세포 계수기로 VCD와 생존율, 대사 분석기로 포도당과 젖산을 재고, 현미경으로 응집과 오염을 봅니다.',c:['SMP'],f:[]},
+ {t:'외부 pH 측정기 값과 배양기 표시값이 0.05 이상 차이 나면 QIC-144를 재교정합니다.',c:['QIC-144'],f:[]},
+ {t:'base 누적 투입량과 삼투압 추세도 함께 기록합니다. 평소보다 base가 많이 들어가면 젖산 과축적을 의심합니다.',c:['P-B'],f:['pl-base']}]},
+{id:'weld',tab:'sub',n:'무균 연결·분리',s:[
+ {t:'열린 공간에서도 무균으로 잇기 위해 무균 커넥터를 쓰거나, 튜브 용접기(welder)로 TPE 튜브 두 개를 녹여 이어 붙입니다.',c:['SCN-01','PC-M'],f:['su-media']},
+ {t:'이송이 끝나면 튜브 실러(sealer)로 튜브를 녹여 밀봉한 뒤 잘라 무균 상태로 분리합니다.',c:['PC-M','MF-01'],f:[]},
+ {t:'실리콘 튜브는 펌프 구간에 쓰고, 용접이 필요한 구간은 C-Flex 같은 TPE 튜브를 씁니다. 실리콘은 용접이 되지 않기 때문입니다.',c:['P-F','P-B','P-AF'],f:['pl-feed','pl-base']}]}
+);
+
+/* ===== Bench-top 5L: component info ===== */
+Object.assign(D,{
+'b-vessel':{t:'5L 유리 배양기 (재킷형)',g:'Autoclavable glass vessel, 재킷으로 온도 조절.',r:'세포와 배지가 들어가는 용기입니다. 이중벽(재킷) 사이로 물이 흘러 배양액에 직접 닿지 않고 온도를 전달합니다. 유리라 약한 충격에도 깨질 수 있습니다.',a:'통째로 오토클레이브에 넣어 멸균합니다. 실제 배양액 양(working volume)은 전체 용량보다 적게 채웁니다.',x:'조립과 운반 중 파손, 헤드플레이트 O-ring 체결 상태를 확인합니다.'},
+'b-mot':{t:'교반 모터와 3-blade segment 임펠러',g:'Magnetic 또는 direct drive.',r:'45도로 기울어진 날개 세 개가 배양액을 섞습니다. 산소 전달력은 약하지만 세포에 주는 충격이 적습니다.',a:'교반을 올리면 혼합과 산소 전달이 좋아지지만 전단 스트레스가 커집니다. 너무 낮으면 세포가 가라앉고 분산이 나빠집니다.',x:'멸균 후 모터를 체결한 뒤 교반을 시작합니다. 강의 조건은 DO 포화 때 100 rpm up-flow입니다.'},
+'b-ovl':{t:'1 Overlay 포트',g:'헤드스페이스 가스 공급.',r:'배양액 표면 위(헤드스페이스)로 공기를 불어 넣어 쌓인 CO₂를 밀어냅니다. 기포가 생기지 않아 세포 손상이 없습니다.',a:'유량을 올리면 CO₂ 제거가 늘지만, 너무 높이면 내부 압력이 오르고 배기 필터가 막힐 수 있습니다.',x:'튜빙: 실리콘 #25 (300 mm), 0.2 µm 입구 필터 1개, 클램프. 산소 전달 효율이 낮아 대규모에서는 보조로만 씁니다.'},
+'b-spg':{t:'2 Sparger 포트',g:'딥튜브 끝에 스파저.',r:'배양액 바닥에서 공기, O₂, N₂, CO₂를 기포로 넣습니다. 이 도면은 링(ring) 스파저로 그렸습니다. 동물세포에는 미세 기포 스파저를 쓰기도 합니다.',a:'가스를 늘리면 산소 전달이 늘지만, 기포가 터질 때의 충격과 거품이 늘어납니다.',x:'튜빙: 실리콘 #25 (300 mm), 0.2 µm 입구 필터 1개, 클램프. 멸균 후 가장 먼저 가스를 연결해 양압을 겁니다.'},
+'b-har':{t:'3 Harvest 포트',g:'바닥까지 내려가는 딥튜브.',r:'배양이 끝나면 세포와 생산물이 든 배양액을 빼내는 출구입니다. 멸균 뒤 PBS를 빼낼 때도 씁니다. 바닥 가까이까지 내려가 있어 끝까지 배출할 수 있습니다.',a:'펌프나 압력으로 빼냅니다.',x:'튜빙: 실리콘 #25 (440 mm) + C-Flex/TPE #16 (350 mm), 클램프.'},
+'b-smp':{t:'4 Sampling 포트',g:'배양액 속까지 내려가는 딥튜브.',r:'매일 시료를 뽑는 포트입니다. 실리콘 튜빙 약 10 cm에 루어 커넥터와 swabable valve를 달아, 바늘 없는 루어락 주사기로 무균 채취합니다.',a:'채취 전 밸브 표면을 소독하고, 첫 부분은 라인에 고여 있던 액이라 버린 뒤 채취합니다.',x:'튜빙: 실리콘 #25 (100 mm). 오염이 들어오기 쉬운 경로입니다.'},
+'b-quad':{t:'5 Quad-addition 포트 (19 mm)',g:'첨가 포트 4개가 하나로 된 큰 포트.',r:'Base, 소포제, (미생물 배양에서는) acid 같은 첨가액 라인을 한 포트에 여러 개 꽂습니다. 튜브 끝이 헤드스페이스에 있어 액면 위에서 떨어뜨립니다.',a:'Base는 pH가 하한 아래로 내려가면 펌프로 들어갑니다. 접종 전에 펌프 prime 기능으로 vessel 직전까지 채워 둡니다.',x:'튜빙: 실리콘 #16 (400 mm) + C-Flex/TPE #16 (300 mm), 클램프 (강의 표의 Tri-port line).'},
+'b-feed':{t:'10 Feed 포트 (1/4 tube addition, 6 mm)',g:'가는 첨가 포트.',r:'배양 중 추가 feeding용 포트이자, 배지와 seed를 이송하는 포트입니다. 오버레이로 쓰기도 합니다.',a:'연결 후 펌프 회전 방향을 꼭 확인합니다. 반대로 돌면 배양액이 병으로 빠져나갑니다.',x:'튜빙: 실리콘 #25 (400 mm) + C-Flex/TPE #16 (350 mm), 클램프.'},
+'b-exh':{t:'9 Exhaust 포트와 컨덴서',g:'배기 라인.',r:'배양기 안의 가스가 빠져나가는 출구입니다. 컨덴서가 배기를 식혀 수분을 응축시켜 되돌려 보내, 배양액 증발과 배기 필터 막힘, 주변 오염과 냄새를 막습니다.',a:'Leak test가 끝나면 이 vent 라인 쪽 겸자만 서서히 풀어 압력을 뺍니다.',x:'튜빙: 실리콘 #24 (300 mm), Y 분기 + vent 필터. 필터가 젖으면 내부 압력이 올라갑니다.'},
+'b-tw':{t:'6 Thermowell (온도 센서)',g:'RTD 센서가 들어가는 스테인리스 관.',r:'RTD 온도 센서를 스테인리스 관 안에 넣어, 센서가 배양액에 직접 닿지 않고 온도를 잽니다. 센서를 통한 오염을 막습니다.',a:'관 끝이 배양액에 잠겨 있어야 정확히 잽니다.',x:'멸균 때는 끝을 호일로 감쌉니다.'},
+'b-do':{t:'7 DO 센서 포트 (12 mm)',g:'센서용 12 mm 포트.',r:'용존산소를 잽니다. DO가 setpoint(예: 40%) 아래로 내려가면 공기와 O₂가 들어가 다시 올립니다.',a:'교정: 케이블 연결 전 Set Zero에서 0 입력 → 케이블 연결 후 overnight 포화 → span 100% 입력 (CO₂ 5%를 섞은 배지 포화면 95%). N₂로 0%를 잡는 방법도 있습니다.',x:'센서 끝이 잠기고 임펠러에 닿지 않도록 높이를 맞춥니다.'},
+'b-ph':{t:'8 pH 센서 포트 (12 mm)',g:'센서용 12 mm 포트.',r:'배양액 pH를 잽니다. 높을 때는 CO₂, 낮을 때는 base로 조절합니다.',a:'멸균 전 2점 교정: pH 7.0 → Set Zero, pH 4.01 → Set Span. 값의 소수점 둘째 자리와 트렌드가 안정된 뒤 입력합니다. 운전 중 외부 pH meter와 0.05 이상 차이 나면 재교정합니다.',x:'꽂을 때 아랫부분을 먼저 잠그고 윗부분을 풀어 높이를 맞춘 뒤 완전히 잠급니다. pH는 온도에 따라 달라지므로 온도가 안정된 뒤 확인합니다.'},
+'b-foam':{t:'11 Foam/Level 센서 포트',g:'강의 실습에서는 사용하지 않음.',r:'거품이 과하게 생겨 센서가 젖으면 이를 감지해 소포제를 자동으로 넣게 합니다.',a:'센서 끝 높이가 곧 거품 경보 높이입니다.',x:'소포제(Simethicone 5% w/v, polypropylene glycol 10% v/v 등)를 많이 넣으면 산소 전달이 떨어집니다.'},
+'b-spare':{t:'12 예비 19 mm 포트',g:'강의 실습에서는 사용하지 않음.',r:'미생물 발효에서 주로 화염 접종에 쓰는 큰 포트입니다. 동물세포 배양에서는 막아 둡니다.',a:'-',x:'쓰지 않는 포트도 멸균 전에 확실히 잠겨 있어야 leak test를 통과합니다.'},
+'b-gas':{t:'가스 모듈 (Air, O₂, N₂, CO₂, Overlay)',g:'유량계와 전자 밸브로 구성.',r:'Air, O₂, N₂, CO₂ 네 라인이 sparger로, 별도의 공기 라인이 overlay로 갑니다. Air와 O₂는 DO 조절, CO₂는 pH를 낮출 때, N₂는 DO 센서 0% 교정에 씁니다.',a:'DO 40%에서 그 아래로 내려가면 Air와 O₂가 들어가 DO를 다시 올립니다.',x:'가스 유량은 vvm(1분당 배양액 부피 대비 가스 부피)으로 설정합니다. 예: 3 L 배양에 0.1 vvm이면 0.3 L/min.'},
+'b-circ':{t:'냉각수 순환기 (15°C)',g:'Water circulator.',r:'컨덴서에 차가운 물을 흘려 배기 속 수분을 응축시킵니다.',a:'멸균 후 연결 전에 미리 켜서 15°C로 준비해 둡니다.',x:'물 라인 체결은 OUT부터, 분리는 IN부터 합니다.'},
+'b-cond':{t:'컨덴서 (배기 냉각기)',g:'Exhaust cooler.',r:'배기 가스를 식혀 수분을 다시 배양기로 떨어뜨립니다.',a:'냉각수가 흐르지 않으면 배양액이 증발하고 배기 필터가 젖어 막힙니다.',x:'배기 필터 막힘은 내부 압력 상승으로 이어집니다.'},
+'b-jkt':{t:'재킷 순환수',g:'Water jacket.',r:'컨트롤러의 온도 조절 유닛이 재킷에 물을 돌려 배양액 온도를 맞춥니다.',a:'멸균 직후 vessel이 60°C 이하로 떨어진 뒤 온도 제어를 시작합니다.',x:'정리할 때 물 라인은 supply를 먼저, return을 나중에 뺍니다.'},
+'b-ctrl':{t:'컨트롤러와 온도 조절 유닛',g:'Control station.',r:'교반, 온도, 가스, 펌프를 제어하고 pH, DO, 온도를 표시합니다.',a:'정리할 때는 교반, 온도, 가스 등 작동 중인 것을 먼저 모두 끕니다.',x:'센서 케이블 연결 상태와 알람을 확인합니다.'},
+'b-base':{t:'Base 병과 펌프',g:'NaOH 1N, NaHCO₃ 7.5%, Na₂CO₃ 5% 등.',r:'pH가 하한 아래로 내려가면 연동식 펌프가 base를 넣습니다.',a:'접종 전 pump prime으로 vessel 직전까지 채워 두면 첫 투입 지연이 없습니다.',x:'병은 GL45 캡, 2-port 헤드피스, 딥튜브, PTFE 0.2 µm 필터로 구성합니다.'},
+'b-feedb':{t:'배지 · Seed · Feed 병과 펌프',g:'Culture medium, feed, glucose.',r:'멸균 후 배지를 넣고, 접종 때 seed를, 배양 중에는 feed를 같은 방식으로 보냅니다.',a:'연결은 welder로 무균 연결하고, 연결부와 펌프 회전 방향을 반드시 확인합니다.',x:'펌프 구간은 실리콘, 용접 구간은 TPE 튜브를 씁니다.'},
+'b-harvb':{t:'Harvest 병',g:'PBS와 배양액 회수용.',r:'멸균 뒤 PBS를 빼내 받고, 배양이 끝나면 배양액을 받습니다.',a:'-',x:'배양기와 함께 멸균합니다.'},
+'b-filt':{t:'0.2 µm 입구 필터',g:'Gas inlet filter.',r:'가스를 무균으로 걸러 배양기에 넣습니다.',a:'-',x:'멸균 때 호일로 감싸 수분에 젖지 않게 합니다. 젖으면 가스가 통과하지 못합니다.'}
+});
+
+/* ===== Bench-top 5L: scenarios ===== */
+SC.push(
+{id:'b1',tab:'bench',n:'1 조립·튜빙',s:[
+ {t:'포트마다 맞는 튜빙을 연결합니다. 펌프를 거치는 구간은 실리콘, 용접할 구간은 C-Flex/TPE를 씁니다.',c:['b-har','b-feed','b-quad'],f:['bp-har','bp-feed','bp-base']},
+ {t:'가스가 들어가는 Sparger와 Overlay에는 0.2 µm 입구 필터를, 컨덴서 배기에는 vent 필터를 답니다.',c:['b-spg','b-ovl','b-exh','b-filt'],f:['bp-spg','bp-ovl','bp-exh']},
+ {t:'샘플링 포트에는 실리콘 튜빙 약 10 cm, 루어 커넥터, swabable valve를 달아 바늘 없이 무균 채취하게 합니다.',c:['b-smp'],f:[]},
+ {t:'병(Harvest, 배지, Seed, Base)은 GL45 캡, 2-port 헤드피스, 딥튜브, PTFE 0.2 µm 필터로 구성합니다.',c:['b-harvb','b-feedb','b-base'],f:[]}]},
+{id:'b2',tab:'bench',n:'2 pH 교정',s:[
+ {t:'pH 교정은 멸균 전에 합니다. 멸균 뒤에는 닫힌 배양기에서 센서를 꺼낼 수 없기 때문입니다.',c:['b-ph'],f:[]},
+ {t:'pH 7.0 buffer에 담가 소수점 둘째 자리와 트렌드가 안정되면 Set Zero로 7.0을 입력합니다.',c:['b-ph'],f:[]},
+ {t:'pH 4.01(또는 10.01) buffer에 담가 안정되면 Set Span으로 4.01을 입력합니다.',c:['b-ph'],f:[]},
+ {t:'센서를 꽂을 때 아랫부분 먼저 잠그고, 윗부분을 풀어 높이를 맞춘 뒤 완전히 잠급니다. 끝이 잠기고 임펠러에 닿지 않아야 합니다.',c:['b-ph','b-do'],f:[]}]},
+{id:'b3',tab:'bench',n:'3 Leak test',s:[
+ {t:'입구 가스 라인을 제외한 모든 포트를 막아 배양기를 밀폐합니다.',c:['b-ovl','b-har','b-smp','b-quad','b-feed','b-exh','b-spare','b-foam'],f:[]},
+ {t:'Sparger로 공기를 넣습니다(최대 500 cc). 내부 압력이 오를수록 들어가는 공기량이 줄어듭니다.',c:['b-gas','b-spg'],f:['bp-gair','bp-spg']},
+ {t:'유량이 줄면 sparger 라인도 막아 완전히 밀폐합니다. 내부는 양압 상태가 됩니다.',c:['b-spg'],f:[]},
+ {t:'sparger 라인을 다시 열어 유량을 봅니다. 누출이 없으면 압력이 유지되어 유량이 낮게, 누출이 있으면 압력을 채우려고 공기가 더 많이 들어갑니다.',c:['b-spg','b-gas'],f:['bp-spg']},
+ {t:'끝나면 가스를 끄고 vent 라인 쪽 겸자만 서서히 풀어 압력을 뺀 뒤 멸균으로 넘어갑니다.',c:['b-exh'],f:['bp-exh']}]},
+{id:'b4',tab:'bench',n:'4 오토클레이브 멸균',s:[
+ {t:'멸균 중 생기는 수분에 오염되지 않도록 루어 밸브, 필터, thermowell, 센서 끝을 호일로 감쌉니다.',c:['b-smp','b-filt','b-tw','b-ph','b-do'],f:[]},
+ {t:'연결을 마친 배양기와 병(Harvest, 배지, Seed, Base)을 대형 멸균기에 함께 넣습니다.',c:['b-vessel','b-harvb','b-feedb','b-base'],f:[]},
+ {t:'빈 채로(공멸균) 하거나 PBS를 넣고 멸균합니다. PBS를 넣으면 센서와 임펠러가 잠길 만큼 채웁니다.',c:['b-vessel','b-ph','b-do','b-mot'],f:[]},
+ {t:'검증된 멸균기로 121°C: Pre-heating 5분 → Sterilization 100분 → Dry 20분.',c:['b-vessel'],f:[]}]},
+{id:'b5',tab:'bench',n:'5 멸균 후 연결',s:[
+ {t:'멸균기 안에서 포트를 한 번 더 잠그고, 70°C 이하로 식은 뒤 컨트롤러 옆으로 옮깁니다.',c:['b-vessel'],f:[]},
+ {t:'가스 라인을 가장 먼저 연결해 가스를 켜고 sparger 겸자를 풉니다. 빨리 양압을 걸어 바깥 물질이 들어오지 못하게 하는 것입니다.',c:['b-gas','b-spg'],f:['bp-gair','bp-spg']},
+ {t:'나머지 겸자와 클램프를 풉니다. 오래 잠가 두면 튜빙이 눌려 붙을 수 있습니다.',c:['b-har','b-feed','b-quad','b-ovl'],f:[]},
+ {t:'물 라인(재킷, 컨덴서)을 체결합니다. 체결은 OUT부터, 분리는 IN부터입니다. 순환기는 미리 15°C로 준비합니다.',c:['b-jkt','b-cond','b-circ','b-ctrl'],f:['bp-jin','bp-jout','bp-cw']},
+ {t:'모터를 체결해 교반을 시작하고, vessel이 60°C 이하로 떨어지면 온도 제어를 시작합니다.',c:['b-mot','b-ctrl'],f:[]}]},
+{id:'b6',tab:'bench',n:'6 DO 포화·교정',s:[
+ {t:'pH 센서 케이블과 온도 센서를 연결합니다.',c:['b-ph','b-tw'],f:[]},
+ {t:'가스 유량 설정: PBS면 Air만 0.1 vvm, 배지면 0.05 vvm(Air 95%, CO₂ 5%)으로 sparging합니다.',c:['b-gas','b-spg'],f:['bp-gair','bp-gco2','bp-spg']},
+ {t:'교반 100 rpm(up-flow), 온도 37°C로 맞춥니다.',c:['b-mot','b-ctrl','b-jkt'],f:['bp-jin','bp-jout']},
+ {t:'DO 케이블 연결 전 Set Zero에서 0을 입력하고, 케이블을 연결해 overnight 포화시킵니다. N₂로 0%를 잡는 방법도 있습니다.',c:['b-do'],f:['bp-gn2']},
+ {t:'다음 날 DO calibration에서 span 100%를 입력합니다. 배지에 CO₂ 5%로 포화시켰다면 95%를 입력합니다.',c:['b-do'],f:[]}]},
+{id:'b7',tab:'bench',n:'7 PBS 제거·배지 투입',s:[
+ {t:'전체 순서: 멸균 후 PBS harvest → Media adding → Seed adding → Harvest.',c:['b-vessel'],f:[]},
+ {t:'Harvest 라인으로 PBS를 빼냅니다. 이송은 멸균된 튜빙으로 하고, 다른 튜빙끼리는 반드시 무균으로 연결합니다.',c:['b-har','b-harvb'],f:['bp-har']},
+ {t:'배지 병을 Feed 포트로 연결해 배지를 넣습니다.',c:['b-feedb','b-feed'],f:['bp-feed']},
+ {t:'온도 제어와 교반을 켜고 가스는 최소 유량으로 흘립니다. 온도가 안정되면 샘플링해 pH를 확인합니다. pH는 온도에 따라 달라집니다.',c:['b-ctrl','b-mot','b-smp','b-gas'],f:['bp-spg']}]},
+{id:'b8',tab:'bench',n:'8 접종·Base 연결',s:[
+ {t:'pH가 안정되면 접종합니다. 조건 예: 37°C, pH 7.0~7.2, DO 40~50% (세포마다 다름).',c:['b-ph','b-do','b-tw'],f:[]},
+ {t:'Seed 병을 welder로 연결합니다. 연결 부위와 펌프 회전 방향을 반드시 확인합니다.',c:['b-feedb','b-feed'],f:['bp-feed']},
+ {t:'Base 용액은 pump prime 기능으로 vessel 들어가기 직전까지 채워 둡니다.',c:['b-base','b-quad'],f:['bp-base']}]},
+{id:'b9',tab:'bench',n:'9 일일 샘플링',s:[
+ {t:'루어락 주사기로 샘플링 포트에서 채취합니다.',c:['b-smp'],f:[]},
+ {t:'Cell counter로 VCD와 생존율, Cedex Bio로 포도당과 젖산을 잽니다.',c:['b-smp'],f:[]},
+ {t:'외부 pH meter로 재서 배양기 값과 0.05 이상 차이 나면 재교정합니다.',c:['b-ph'],f:[]},
+ {t:'현미경으로 세포 상태, 응집, debris, 오염을 확인합니다.',c:['b-smp'],f:[]}]},
+{id:'b10',tab:'bench',n:'10 Harvest·정리',s:[
+ {t:'배양이 끝나면 마지막 harvest를 합니다.',c:['b-har','b-harvb'],f:['bp-har']},
+ {t:'컨트롤러에서 교반, 온도, 가스 등 작동 중인 것을 모두 끕니다.',c:['b-ctrl','b-gas','b-mot'],f:[]},
+ {t:'라인과 센서(온도, pH, DO, sparger line)를 제거하고, 모터를 빼고, 물 라인을 뺍니다(supply 먼저, return 다음).',c:['b-ph','b-do','b-tw','b-spg','b-jkt','b-cond'],f:['bp-jin','bp-jout','bp-cw']},
+ {t:'튜빙은 한 번 쓰고 버리고, 장비를 끈 뒤 배양기를 세척합니다.',c:['b-vessel'],f:[]}]}
+);
+
+/* ===== Bench-top 5L: drawing ===== */
+svg=document.getElementById('dwg2');
+{const df=E('defs',{});const pt=E('pattern',{id:'gp2',width:20,height:20,patternUnits:'userSpaceOnUse'},df);E('path',{d:'M20 0H0V20',fill:'none',stroke:'var(--grid)','stroke-width':1},pt);E('rect',{x:0,y:0,width:1400,height:990,fill:'url(#gp2)'})}
+Lz=E('g',{});Lp=E('g',{});Ls=E('g',{});Lo=E('g',{});Lc=E('g',{});
+zone(20,20,170,380,'가스 모듈');
+zone(200,20,510,940,'5L 유리 배양기 (옆에서 본 모습)');
+zone(730,20,650,640,'헤드플레이트 (위에서 본 모습)');
+zone(730,680,650,280,'읽는 법');
+zone(20,420,170,540,'회수');
+
+/* gas module */
+[['ovl',80,'Overlay'],['gair',125,'Air'],['go2',160,'O₂'],['gn2',195,'N₂'],['gco2',230,'CO₂']].forEach(([k,y,l])=>{
+ pipe('bp-'+k,k==='ovl'?`M40 ${y} H190`:`M40 ${y} H160`,'p-air');});
+pipe(null,'M160 125 V262','p-air');
+{let g=G('b-gas');[['Overlay',80],['Air',125],['O₂',160],['N₂',195],['CO₂',230]].forEach(([l,y])=>{T(g,32,y-11,l,'ts','start');E('rect',{x:72,y:y-10,width:10,height:20,rx:2,class:'eq'},g);E('circle',{cx:77,cy:y+3,r:2.4,class:'eq'},g);valve(g,118,y,false)});T(g,100,300,'유량계 · 전자 밸브','ts');T(g,100,316,'→ Sparger (4개 라인)','ts');T(g,100,332,'→ Overlay (공기)','ts')}
+pipe('bp-spg','M160 262 H304 V300','p-air');
+pipe('bp-ovl2','M190 80 H278 V300','p-air');P['bp-ovl']=P['bp-ovl2'];
+{let g=G('b-filt');filt(g,248,70,20,20);filt(g,248,252,20,20);T(g,258,58,'0.2 µm','ts');T(g,258,286,'0.2 µm','ts')}
+
+/* vessel */
+{let g=G('b-vessel');
+ E('path',{d:'M250 420 V806 Q250 850 294 850 H546 Q590 850 590 806 V420',class:'eqd'},g);
+ E('path',{d:'M264 450 V796 Q264 834 302 834 H538 Q576 834 576 796 V450 Z',fill:'var(--prod)','fill-opacity':.1,stroke:'none'},g);
+ E('path',{d:'M262 316 V796 Q262 836 302 836 H538 Q578 836 578 796 V316',class:'eq',fill:'none'},g);
+ E('path',{d:'M264 450 Q290 444 316 450 T368 450 T420 450 T472 450 T524 450 T576 450',fill:'none',stroke:'var(--prod)','stroke-width':1.4},g);
+ E('rect',{x:244,y:300,width:352,height:16,rx:3,class:'eq'},g);
+ T(g,600,450,'액면','ts','start');T(g,600,470,'(working volume)','ts','start');T(g,600,600,'재킷','ts','start')}
+/* ports side view */
+function tube(id,x,y2,w,label,cap){let g=G(id);E('rect',{x:x-5,y:288,width:10,height:12,rx:2,class:'eq'},g);E('path',{d:`M${x} 316 V${y2}`,class:'vlv tb',style:`stroke-width:${w||3}px;stroke-linecap:round`},g);E('rect',{x:x-8,y:300,width:16,height:Math.max(20,y2-300),class:'hit'},g);if(label)T(g,x,label[1],label[0],'ti');return g}
+tube('b-ovl',278,340);
+{let g=tube('b-spg',304,790);E('path',{d:'M304 790 H380',class:'vlv tb',style:'stroke-width:3px'},g);E('ellipse',{cx:420,cy:790,rx:40,ry:7,class:'eq'},g);[392,406,420,434,448].forEach(x=>E('circle',{cx:x,cy:784,r:1.8,class:'eq'},g))}
+{let g=tube('b-smp',330,700);E('rect',{x:324,y:262,width:12,height:24,rx:3,class:'eq'},g);E('rect',{x:327,y:232,width:6,height:28,rx:2,class:'eq'},g);T(g,318,246,'주사기','ts','end')}
+tube('b-har',356,818);
+tube('b-foam',382,432);
+tube('b-quad',456,345,3);
+tube('b-feed',480,345,3);
+tube('b-exh',504,330,3);
+tube('b-tw',528,700,6);
+tube('b-do',550,650,8);
+tube('b-ph',572,650,8);
+[['1',278],['2',304],['4',330],['3',356],['11',382],['5',456],['10',480],['9',504],['6',528],['7',550],['8',572]].forEach(([n,x])=>T(Lz,x,327,n,'ti'));
+{let g=G('b-mot');E('rect',{x:398,y:236,width:44,height:52,rx:6,class:'eq'},g);T(g,420,262,'M','tg');E('path',{d:'M420 288 V760',class:'vlv tb',style:'stroke-width:3px'},g);
+ [640,740].forEach(y=>{E('path',{d:`M374 ${y+8} L414 ${y} M426 ${y} L466 ${y-8}`,class:'vlv tb',style:'stroke-width:5px;stroke-linecap:round'},g);E('rect',{x:413,y:y-5,width:14,height:10,rx:2,class:'eq'},g)});E('rect',{x:370,y:230,width:100,height:530,class:'hit'},g)}
+/* exhaust + condenser */
+pipe('bp-exh','M504 288 V240 M504 150 V135 M504 105 V88','p-vent');atm(504,82);
+{let g=G('b-cond');E('rect',{x:488,y:150,width:32,height:90,rx:6,class:'eq'},g);E('path',{d:'M504 150 V240',stroke:'var(--line)','stroke-width':2,fill:'none'},g);T(g,480,195,'컨덴서','ts','end')}
+{let g=G('b-exh');filt(g,494,105,20,30);T(g,480,120,'vent 필터','ts','end')}
+pipe('bp-cw','M590 222 H520 M520 168 H590','p-chw');
+{let g=G('b-circ');box(g,590,150,100,56,'순환기','15°C')}
+/* base and feed */
+pipe('bp-base','M640 340 V268 H456 V288','p-su');
+pipe('bp-feed','M676 590 H688 V280 H480 V288','p-su');
+{let g=G('b-base');pump(g,640,305,11,'up');box(g,610,340,60,56,'Base');}
+{let g=G('b-feedb');pump(g,688,440,11,'up');box(g,600,560,76,60,'배지','Seed · Feed')}
+/* harvest */
+pipe('bp-har','M356 288 V196 H226 V860 H150','p-su');
+{let g=G('b-harvb');box(g,60,820,90,80,'Harvest 병');T(g,105,918,'PBS · 배양액 회수','ts')}
+/* jacket & controller */
+pipe('bp-jin','M360 880 V850','p-jk');pipe('bp-jout','M250 430 H242 V902 H300','p-jk');
+{let g=G('b-jkt');E('path',{d:'M250 430 H242 V902 H300',stroke:'transparent','stroke-width':12,fill:'none'},g);T(g,366,866,'재킷 순환수','ts','start')}
+{let g=G('b-ctrl');box(g,300,880,240,46,'컨트롤러 · 온도 조절 유닛','교반 · 온도 · 가스 · 펌프 제어')}
+
+/* head plate top view */
+{const cx=1055,cy=345,R=225;let g=G('b-vessel');E('circle',{cx,cy,r:R,class:'eq'},g);E('circle',{cx,cy,r:R-14,class:'eqd'},g);
+ const ports=[['b-ovl','1','Overlay',-150,170,13,0],['b-spg','2','Sparger',-115,170,13,1],['b-smp','4','Sampling',-80,170,13,1],['b-har','3','Harvest',-45,170,13,1],['b-quad','5','Quad (19 mm)',-5,168,21,0],['b-feed','10','Feed (6 mm)',35,170,11,0],['b-exh','9','Exhaust',75,170,13,0],['b-tw','6','Thermowell',110,170,13,1],['b-do','7','DO (12 mm)',145,170,16,1],['b-ph','8','pH (12 mm)',180,170,16,1],['b-foam','11','Foam/Level',-100,100,13,0],['b-spare','12','예비 19 mm',82,100,21,0]];
+ ports.forEach(([id,n,l,a,r,s,sub])=>{const rad=a*Math.PI/180,x=cx+r*Math.cos(rad),y=cy+r*Math.sin(rad);const pg=G(id);E('circle',{cx:x,cy:y,r:s,class:'eq'+(sub?' subm':'')},pg);T(pg,x,y,n,'ti');
+  const c=Math.cos(rad);if(r>120){const lr=R+22;T(pg,cx+lr*Math.cos(rad),cy+lr*Math.sin(rad),l,'ts',c>.25?'start':c<-.25?'end':'middle')}else T(pg,x,y+s+12,l,'ts')});
+ let m=G('b-mot');E('circle',{cx,cy,r:32,class:'eq'},m);T(m,cx,cy,'M','tg');T(m,cx,cy+48,'교반축','ts')}
+
+/* legend */
+{const L=Lz;E('circle',{cx:760,cy:726,r:11,class:'eq subm'},L);T(L,780,726,'튜브가 배양액에 잠기는 포트: Sparger, Sampling, Harvest, 센서, Thermowell','ts','start');
+ E('circle',{cx:760,cy:758,r:11,class:'eq'},L);T(L,780,758,'헤드스페이스에 머무는 포트: Overlay, 첨가(Feed, Base), Exhaust','ts','start');
+ [[11,'6 mm: feed line'],[16,'12 mm: 센서 (pH, DO)'],[21,'19 mm: 첨가 라인 4개 (quad), 화염 접종용']].forEach(([r,l],i)=>{E('circle',{cx:760,cy:806+i*44,r,class:'eq'},L);T(L,790,806+i*44,l,'ts','start')});
+ T(L,1080,806,'튜빙: 실리콘은 펌프 구간(용접 불가),','ts','start');T(L,1080,824,'C-Flex/TPE는 welder로 무균 연결하는 구간','ts','start');
+ T(L,1080,858,'포트 배치는 설명용 예시입니다.','ts','start');T(L,1080,876,'실제 배치는 모델마다 다릅니다.','ts','start')}
+svg=document.getElementById('dwg');
+
+/* interaction */
+const panel=document.getElementById('panel'),nav=document.getElementById('scen');
+let cur=null,step=0,TAB='sub';
+function clearHL(){Object.values(C).flat().forEach(g=>g.classList.remove('hot','sel'));Object.values(P).forEach(p=>p.classList.remove('hot'));Object.values(O).forEach(o=>o.classList.remove('on'))}
+function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
+function home(){panel.innerHTML=TAB==='sub'?'<p class="pkind">안내</p><h2>기기를 눌러 보세요</h2><p class="hint">도면의 기기, 밸브, 계기, 헤더를 누르면 역할과 조작했을 때 생기는 변화가 여기에 나옵니다. 위의 시나리오를 고르면 신호와 흐름이 단계별로 강조됩니다. 빨간 점선은 스팀 멸균이 닿는 스테인리스 구역과 일회용 구역의 경계입니다.</p>':'<p class="pkind">안내</p><h2>5L 벤치탑 배양기</h2><p class="hint">실습 강의 자료의 5L 유리 배양기를 바탕으로 그렸습니다. 왼쪽은 옆에서 본 모습으로 각 포트의 튜브가 배양액에 잠기는지(보라색 영역) 헤드스페이스에 머무는지를, 오른쪽은 헤드플레이트를 위에서 본 모습입니다. 같은 포트는 두 그림에서 함께 강조됩니다. 시나리오는 강의의 조립부터 정리까지의 순서를 따릅니다. 포트 배치는 설명을 위한 예시이고 실제 배치는 모델마다 다릅니다.</p>'}
+function unpress(){[...nav.querySelectorAll('button')].forEach(b=>b.setAttribute('aria-pressed','false'))}
+function showCmp(id){
+ cur=null;unpress();clearHL();(C[id]||[]).forEach(g=>g.classList.add('sel'));const d=D[id];if(!d)return;
+ const rel=SC.filter(s=>s.tab===TAB&&s.s.some(x=>x.c.includes(id)));
+ panel.innerHTML=`<p class="pkind">기기 정보</p><h2>${esc(d.t)}</h2>
+ ${AB[id]?`<div class="fld"><b>약자 풀이</b><ul class="abl">${AB[id].map(r=>`<li><span class="tag">${esc(r[0])}</span><span class="en">${enH(r[1])}</span><span class="ko">${esc(r[2])}</span></li>`).join('')}</ul></div>`:''}
+ <div class="fld"><b>한 줄 설명</b><p>${esc(d.g)}</p></div>
+ <div class="fld"><b>역할</b><p>${esc(d.r)}</p></div>
+ <div class="fld"><b>조작하면</b><p>${esc(d.a)}</p></div>
+ <div class="fld"><b>이상 시 확인</b><p>${esc(d.x)}</p></div>`+
+ (rel.length?`<div class="fld"><b>관련 시나리오</b><div class="pnav" style="flex-wrap:wrap">${rel.map(s=>`<button class="pbtn" data-s="${s.id}">${esc(s.n)}</button>`).join('')}</div></div>`:'');
+ panel.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>startScen(b.dataset.s));
+}
+function render(){
+ const s=SC.find(x=>x.id===cur);clearHL();const st=s.s[step];
+ (st.f||[]).forEach(p=>P[p]&&P[p].classList.add('hot'));(st.o||[]).forEach(o=>O[o]&&O[o].classList.add('on'));
+ st.c.forEach(c=>(C[c]||[]).forEach(g=>g.classList.add('hot')));
+ panel.innerHTML=`<p class="pkind">시나리오</p><h2>${esc(s.n)}</h2><ol class="steps">${s.s.map((x,i)=>`<li data-i="${i}" class="${i===step?'cur':i<step?'done':''}">${esc(x.t)}</li>`).join('')}</ol>
+ <div class="pnav"><button class="pbtn" id="pv" ${step===0?'disabled':''}>이전 단계</button><button class="pbtn" id="nx" ${step===s.s.length-1?'disabled':''}>다음 단계</button><button class="pbtn" id="ex">시나리오 닫기</button></div>`;
+ panel.querySelectorAll('li').forEach(li=>li.onclick=()=>{step=+li.dataset.i;render()});
+ panel.querySelector('#pv').onclick=()=>{step--;render()};panel.querySelector('#nx').onclick=()=>{step++;render()};
+ panel.querySelector('#ex').onclick=()=>{cur=null;unpress();clearHL();home()};
+}
+function startScen(id){cur=id;step=0;[...nav.querySelectorAll('button')].forEach(b=>b.setAttribute('aria-pressed',b.dataset.s===id?'true':'false'));render()}
+function buildNav(){[...nav.querySelectorAll('button')].forEach(b=>b.remove());SC.filter(s=>s.tab===TAB).forEach(s=>{const b=document.createElement('button');b.textContent=s.n;b.dataset.s=s.id;b.setAttribute('aria-pressed','false');b.onclick=()=>startScen(s.id);nav.appendChild(b)})}
+function setTab(t){TAB=t;buildAb();cur=null;clearHL();document.getElementById('dwg').style.display=t==='sub'?'':'none';document.getElementById('dwg2').style.display=t==='bench'?'':'none';document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t?'true':'false'));buildNav();home()}
+function showAb(ids){showCmp(ids[0]);ids.forEach(id=>(C[id]||[]).forEach(g=>g.classList.add('sel')));
+ const rm=window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
+ document.querySelector('.sheetwrap').scrollIntoView({behavior:rm?'auto':'smooth',block:'start'})}
+function buildAb(){const box=document.getElementById('abgrid');box.innerHTML='';
+ GL.filter(s=>s.tab===TAB||s.tab==='all').forEach(s=>{const sec=document.createElement('section');
+  sec.innerHTML=`<h3>${esc(s.h)}</h3><table class="ab">${s.r.map((r,i)=>{const ids=(r[3]||[]).filter(id=>C[id]);
+   return `<tr><td>${ids.length?`<button class="abtn" data-i="${i}" title="도면에서 보기">${esc(r[0])}</button>`:esc(r[0])}</td><td><span class="en">${enH(r[1])}</span><span class="ko">${esc(r[2])}</span></td></tr>`}).join('')}</table>`;
+  sec.querySelectorAll('.abtn').forEach(b=>b.onclick=()=>showAb(s.r[+b.dataset.i][3].filter(id=>C[id])));
+  box.appendChild(sec)})}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>setTab(b.dataset.t));
+Object.entries(C).forEach(([id,gs])=>gs.forEach(g=>{g.addEventListener('click',()=>showCmp(id));g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showCmp(id)}})}));
+setTab('sub');
+
+</script>
+
+
+</body></html>

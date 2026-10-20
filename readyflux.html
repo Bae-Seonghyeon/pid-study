@@ -1,0 +1,586 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body><div style="position:sticky;top:0;z-index:50;display:flex;justify-content:flex-start;padding:8px max(16px,env(safe-area-inset-left,0px));background:#16212b"><button type="button" onclick="history.back()" style="font:600 13px system-ui,sans-serif;color:#fff;background:transparent;border:1px solid #6b7c8a;border-radius:6px;padding:5px 12px;cursor:pointer">← 자료 목록</button></div>
+<title>ÄKTA readyflux 유로 애니메이션</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: step rail on the left, one large P&ID stage on the right, the explanation directly under the stage. */
+:root{
+  --warn:#b42318; --warn-soft:#fde7e4;
+  --bg:#edf1f4; --panel:#ffffff; --ink:#16212b; --muted:#566473; --line:#cfd7de; --pipe:#b3bec9; --equip:#f6f8fa;
+  --accent:#0b6e6e; --accent-ink:#ffffff; --accent-soft:#d9eeec; --sig:#5b4b8a;
+  --product:#b0307a; --buffer:#2563c9; --water:#0c88ab; --cip:#bd6500; --storage:#2c8439; --air:#667382; --perm:#5a8ad6;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f151b; --panel:#172029; --ink:#e6edf3; --muted:#95a4b3; --line:#2b3843; --pipe:#465360; --equip:#1d2832;
+  --accent:#3fc1b8; --accent-ink:#06201f; --accent-soft:#143836; --sig:#c3b6ef; --warn:#ff8a7a; --warn-soft:#3a1d1a;
+  --product:#f06bb0; --buffer:#6ba3ff; --water:#4cc9e8; --cip:#f2a33a; --storage:#62c670; --air:#a9b4c0; --perm:#8fb6ee;
+  color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0f151b; --panel:#172029; --ink:#e6edf3; --muted:#95a4b3; --line:#2b3843; --pipe:#465360; --equip:#1d2832;
+  --accent:#3fc1b8; --accent-ink:#06201f; --accent-soft:#143836; --sig:#c3b6ef; --warn:#ff8a7a; --warn-soft:#3a1d1a;
+  --product:#f06bb0; --buffer:#6ba3ff; --water:#4cc9e8; --cip:#f2a33a; --storage:#62c670; --air:#a9b4c0; --perm:#8fb6ee;
+  color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6;padding-block:20px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1360px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+header h1{font-size:24px;font-weight:700;margin:0;letter-spacing:-.01em;text-wrap:balance}
+header p{margin:4px 0 0;color:var(--muted);max-width:70ch}
+.mono{font-family:var(--mono)}
+
+.layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:16px;align-items:start}
+.rail{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:2px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);max-height:calc(100vh - 24px);overflow:auto}
+.rail h2{font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--muted);margin:10px 8px 4px;text-transform:uppercase}
+.rail h2:first-child{margin-top:2px}
+.step{display:flex;gap:8px;align-items:baseline;width:100%;text-align:left;font:inherit;font-size:13.5px;color:var(--ink);background:none;border:0;border-radius:6px;padding:6px 8px;cursor:pointer}
+.step .n{font-family:var(--mono);font-size:11px;color:var(--muted);min-width:18px;font-variant-numeric:tabular-nums}
+.step:hover{background:var(--accent-soft)}
+.step[aria-current="true"]{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.step[aria-current="true"] .n{color:var(--accent-ink)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.main{display:flex;flex-direction:column;gap:12px;min-width:0}
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line)}
+.bar .ttl{flex:1 1 260px;min-width:0}
+.bar .ttl b{font-size:17px;font-weight:700;display:block;line-height:1.3}
+.bar .ttl span{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.ctl{display:flex;gap:6px;align-items:center}
+.ctl button{font:inherit;font-size:13px;font-weight:500;border:1px solid var(--line);background:var(--equip);color:var(--ink);border-radius:6px;padding:6px 12px;cursor:pointer}
+.ctl button.play{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);min-width:104px}
+.prog{height:3px;background:var(--line)}
+.prog i{display:block;height:100%;width:0;background:var(--accent)}
+.scroll{overflow-x:auto}
+svg#pid{display:block;width:100%;min-width:860px;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;padding:8px 14px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:18px;height:5px;border-radius:3px;display:inline-block}
+
+.info{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:0}
+.card h3{font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--muted);margin:0 0 6px;text-transform:uppercase}
+.card p{margin:0}
+.card.wide{grid-column:1/-1}
+.card.alert{border-color:var(--warn);background:var(--warn-soft)}
+.card.alert h3{color:var(--warn)}
+.scn b{font-size:15px}
+.scn p{color:var(--muted);margin-top:2px;max-width:90ch}
+.rail h2{text-transform:none;letter-spacing:.04em;line-height:1.4}
+.route{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;font-size:13.5px}
+.route b{font-weight:500;background:var(--equip);border:1px solid var(--line);border-radius:5px;padding:1px 7px}
+.route i{color:var(--muted);font-style:normal}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chips span{font-family:var(--mono);font-size:12px;border:1px solid var(--accent);color:var(--accent);border-radius:4px;padding:1px 6px}
+.chips span.p{background:var(--accent);color:var(--accent-ink)}
+ul.pts{margin:0;padding-left:18px}
+ul.pts li+li{margin-top:4px}
+.terms{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px 20px}
+.terms dt{font-family:var(--mono);font-weight:600;font-size:13px;color:var(--accent)}
+.terms dd{margin:0;font-size:13.5px}
+.note{font-size:12.5px;color:var(--muted);margin:0;max-width:90ch}
+/* abbreviation popover */
+.main{position:relative}
+.hit{cursor:pointer}
+.hit:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chips span.k,.route b.k{cursor:pointer}
+.route b.k{border-color:var(--accent)}
+.ab{font:inherit;font-family:var(--mono);font-size:12px;border:1px solid var(--line);background:var(--equip);color:var(--ink);border-radius:4px;padding:2px 8px;cursor:pointer}
+.ab:hover{border-color:var(--accent)}
+.sub{font-size:12.5px;color:var(--muted);margin:14px 0 6px}
+.pop{position:absolute;z-index:6;width:min(310px,calc(100% - 16px));background:var(--panel);border:1.5px solid var(--accent);border-radius:8px;padding:10px 34px 10px 12px;box-shadow:0 8px 24px rgba(0,0,0,.2);font-size:13.5px;line-height:1.55}
+.pop b{font-family:var(--mono);font-size:15px;color:var(--accent);display:block}
+.pop em{font-style:normal;font-weight:600;display:block}
+.pop p{margin:5px 0 0}
+.pop .s{color:var(--muted)}
+.pop .s strong{color:var(--ink)}
+.pop .x{position:absolute;top:4px;right:4px;width:28px;height:28px;border:0;background:none;color:var(--muted);font-size:18px;line-height:1;cursor:pointer;border-radius:6px}
+
+/* diagram */
+.pipe{fill:none;stroke:var(--pipe);stroke-width:4;stroke-linejoin:round;stroke-linecap:round}
+.halo{fill:none;stroke-width:13;opacity:.2;stroke-linejoin:round;stroke-linecap:round}
+.fl{fill:none;stroke-width:5;stroke-linejoin:round;stroke-dasharray:11 8;animation:dash .75s linear infinite}
+.st{fill:none;stroke-width:5;stroke-linejoin:round;opacity:.55}
+@keyframes dash{to{stroke-dashoffset:-19}}
+.eq{fill:var(--equip);stroke:var(--ink);stroke-width:1.5}
+.liq{transition:y .8s ease,height .8s ease,fill .4s}
+.t{font-family:var(--mono);font-size:10.5px;fill:var(--muted)}
+.t.on{fill:var(--ink);font-weight:600}
+.tk{font-family:var(--sans);font-size:12px;fill:var(--ink);font-weight:500}
+.zone{font-family:var(--mono);font-size:11px;letter-spacing:.14em;fill:var(--muted);opacity:.7}
+.sn{font-family:var(--mono);font-size:10px;font-weight:600;fill:var(--ink);text-anchor:middle;dominant-baseline:central}
+.v path{fill:var(--panel);stroke:var(--muted);stroke-width:1.5;stroke-linejoin:round}
+.v.on path{fill:var(--accent);stroke:var(--accent)}
+.v rect{fill:var(--panel);stroke:var(--muted);stroke-width:1.5}
+.pump circle{fill:var(--equip);stroke:var(--ink);stroke-width:1.5}
+.pump path{fill:var(--muted)}
+.pump.on circle{stroke:var(--accent);stroke-width:3}
+.pump.on path{fill:var(--accent);transform-box:fill-box;transform-origin:center;animation:pulse .9s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.fl,.pump.on path{animation:none}.liq{transition:none}}
+
+@media (max-width:900px){
+  .layout{grid-template-columns:minmax(0,1fr)}
+  .rail{position:static;max-height:none;flex-direction:row;overflow-x:auto;align-items:center;gap:4px}
+  .rail h2{margin:0 4px 0 10px;white-space:nowrap}
+  .rail h2:first-child{margin-left:2px}
+  .step{width:auto;white-space:nowrap}
+  .info{grid-template-columns:minmax(0,1fr)}
+}
+.ctl button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);font-weight:600}
+.sg{font-family:var(--mono);font-size:9px;fill:var(--sig);font-weight:500}
+.sgl{fill:none;stroke:var(--sig);stroke-width:1.2;stroke-dasharray:4 3}
+.sgb{fill:var(--panel);stroke:var(--sig);stroke-width:1.2;stroke-dasharray:4 3}
+#sigBody{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 24px}
+#sigBody h4{font-size:12.5px;margin:8px 0 4px;color:var(--sig)}
+#sigBody h4:first-child{margin-top:0}
+#sigBody b{font-family:var(--mono);font-weight:600}
+.sgcol{min-width:0}
+@media (max-width:700px){#sigBody{grid-template-columns:minmax(0,1fr)}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>ÄKTA readyflux 유로 애니메이션</h1>
+    <p>ÄKTA readyflux 1/2" CFF Flowkit P&amp;ID(29216607)를 네 가지 시나리오로 돌려 봅니다. 표준 UF/DF 배치, 탱크보다 큰 배치, 배치 후 세척·보관, 운전 중 이상 상황. 단계를 고르면 열리는 밸브와 유체 경로가 움직이고, 도면 기호를 누르면 약자 뜻과 태그 번호, 기본 상태(NC/NO)가 나옵니다.</p>
+  </header>
+
+  <div class="layout">
+    <nav class="rail" id="rail" aria-label="공정 단계"></nav>
+
+    <div class="main" id="main">
+      <div class="pop" id="pop" role="dialog" aria-live="polite" hidden></div>
+      <section class="stage">
+        <div class="bar">
+          <div class="ttl"><b id="ttl"></b><span id="eng"></span></div>
+          <div class="ctl">
+            <button id="prev" type="button" aria-label="이전 단계">◀ 이전</button>
+            <button id="play" class="play" type="button">▶ 자동 재생</button>
+            <button id="next" type="button" aria-label="다음 단계">다음 ▶</button>
+            <button id="sig" type="button" aria-pressed="false">계측·제어 보기</button>
+          </div>
+        </div>
+        <div class="prog"><i id="prog"></i></div>
+        <div class="scroll"><svg id="pid" viewBox="0 0 1290 640" role="img" aria-label="UF/DF 스키드 P&ID. 선택한 단계의 유체 경로가 색으로 표시됩니다."></svg></div>
+        <div class="legend" id="legend"></div>
+      </section>
+
+      <div class="info">
+        <div class="card wide scn"><h3>시나리오</h3><b id="scName"></b><p id="scDesc"></p></div>
+        <div class="card" id="whyCard"><h3 id="whyH">이 단계의 목적</h3><p id="why"></p></div>
+        <div class="card"><h3>열린 밸브 · 작동 펌프</h3><div class="chips" id="valves"></div></div>
+        <div class="card wide" id="sigCard" hidden><h3>계측·제어 · 이 단계</h3><div id="sigBody"></div></div>
+        <div class="card wide"><h3>유체가 지나가는 길</h3><div class="route" id="route"></div></div>
+        <div class="card wide"><h3 id="ptsH">이해 포인트</h3><ul class="pts" id="pts"></ul></div>
+        <div class="card wide"><h3>도면 읽는 법</h3>
+          <dl class="terms">
+            <div><dt>Pf · Pr · Pp</dt><dd>공급(feed), 농축액(retentate), 투과액(permeate) 압력 센서</dd></div>
+            <div><dt>TMP</dt><dd>(Pf + Pr) / 2 − Pp. 막을 통과시키는 구동 압력</dd></div>
+            <div><dt>ΔP</dt><dd>Pf − Pr. 막 표면을 쓸고 지나가는 cross-flow 세기</dd></div>
+            <div><dt>PCV-341</dt><dd>농축액 라인 압력 조절 밸브. 조이면 Pr이 올라 TMP가 커짐</dd></div>
+            <div><dt>P-201 / 202 / 203</dt><dd>공급 펌프 / 이송 펌프 / 투과액 펌프</dd></div>
+            <div><dt>A · C&amp;T · UV · F · W</dt><dd>기포 센서, 전도도·온도, UV 흡광, 유량계, 저울</dd></div>
+            <div><dt>NC / NO</dt><dd>공기 없으면 닫힘 / 열림. XV-005·006·051, PCV-341만 NO</dd></div>
+          </dl>
+          <p class="sub">약자를 누르면 뜻이 나옵니다.</p>
+          <div class="chips" id="abbr"></div>
+        </div>
+      </div>
+      <p class="note">ÄKTA readyflux P&amp;ID(29216607, 3쪽)와 워크플로 도면을 바탕으로 다시 그린 개념도입니다. 이상 상황 시나리오의 판단 기준과 대응은 일반적인 예시라 실제로는 SOP와 공정 기준값을 따릅니다. 배관 배치는 보기 쉽게 정리했고, 어느 백이 XV-082/083에 달리는지와 XV-001~003 중 어느 포트에 물·세척액·보관액을 연결하는지는 실제 셋업에 따라 달라집니다. 실제 운전은 장비 매뉴얼과 SOP를 기준으로 하세요.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const NS='http://www.w3.org/2000/svg', svg=document.getElementById('pid');
+const el=(t,a={},p=svg,txt)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;p.appendChild(e);return e};
+const d=pts=>'M'+pts.map(p=>p.join(',')).join('L');
+
+// segments: polylines drawn in their "forward" direction
+const SEG={
+  BAG1:[[[110,45],[250,45],[250,90]]], BAG2:[[[110,135],[250,135],[250,90]]], AIRIN:[[[150,90],[250,90]]],
+  TRANSFER:[[[250,90],[480,90]]], X086:[[[480,90],[480,230]]], X085:[[[480,90],[1130,90],[1130,540]]],
+  RET_A1:[[[900,230],[780,230]]], RET_A2:[[[780,230],[480,230]]], RET_B:[[[480,230],[110,230],[110,260]]],
+  X041:[[[780,145],[780,230]]],
+  FEED_A:[[[110,360],[110,400],[480,400]]],
+  IN1:[[[300,605],[300,540],[480,540]]], IN2:[[[360,605],[360,540],[480,540]]], IN3:[[[420,605],[420,540],[480,540]]],
+  INT:[[[480,540],[480,400]]],
+  FEED_B1:[[[480,400],[760,400]]], FEED_B2:[[[760,400],[900,400]]], X071:[[[760,400],[760,505]]],
+  FILT:[[[900,400],[940,400],[940,230],[900,230]]],
+  PERM:[[[990,230],[1015,230],[1015,315]],[[990,400],[1015,400],[1015,315]],[[1015,315],[1060,315],[1060,540]]],
+  M12:[[[1060,540],[1130,540]]], X031:[[[1060,540],[975,540]]], OUT:[[[1130,540],[1215,540],[1215,332]]]
+};
+const SEGV={BAG1:['XV-082'],BAG2:['XV-083'],AIRIN:['XV-081'],TRANSFER:['XV-084'],X086:['XV-086'],X085:['XV-085','XV-033'],
+  RET_A2:['XV-051','PCV-341'],RET_B:['XV-052'],X041:['XV-041'],FEED_A:['XV-005'],IN1:['XV-001'],IN2:['XV-002'],IN3:['XV-003'],
+  INT:['XV-004'],FEED_B2:['XV-006'],X071:['XV-071'],PERM:['XV-032'],X031:['XV-031'],OUT:['XV-034']};
+const SEGP={TRANSFER:'P-202',FEED_B1:'P-201',OUT:'P-203'};
+// valves: [x,y,orientation,label dx,dy,anchor]
+const VAL={'XV-082':[190,45,'h',0,-12,'middle'],'XV-083':[190,135,'h',0,20,'middle'],'XV-081':[205,90,'h',0,-12,'middle'],
+  'XV-084':[430,90,'h',0,-12,'middle'],'XV-085':[540,90,'h',0,-12,'middle'],'XV-086':[480,160,'v',14,4,'start'],
+  'XV-052':[420,230,'h',0,-12,'middle'],'PCV-341':[560,230,'h',0,22,'middle'],'XV-051':[725,230,'h',-6,22,'middle'],
+  'XV-041':[780,190,'v',14,4,'start'],'XV-005':[420,400,'h',0,22,'middle'],'XV-006':[830,400,'h',0,22,'middle'],
+  'XV-004':[480,450,'v',14,4,'start'],'XV-071':[760,450,'v',14,4,'start'],
+  'XV-001':[300,575,'v',13,4,'start'],'XV-002':[360,575,'v',13,4,'start'],'XV-003':[420,575,'v',13,4,'start'],
+  'XV-032':[1060,500,'v',-14,4,'end'],'XV-033':[1130,500,'v',13,4,'start'],'XV-031':[1020,540,'h',0,22,'middle'],'XV-034':[1172,540,'h',0,22,'middle']};
+const PUMP={'P-202':[365,90,0,'이송 P-202',0,30,'middle'],'P-201':[580,400,0,'공급 P-201',0,30,'middle'],'P-203':[1215,480,-90,'P-203',22,-2,'start']};
+const SENS=[[300,90,'A'],[480,500,'A'],[680,400,'Pf'],[845,230,'Pr'],[650,230,'C&T'],[1060,350,'Pp'],[1060,385,'C&T'],[1060,420,'pH'],[1060,455,'F'],[1215,415,'UV']];
+
+// ---- static drawing
+const gBase=el('g'), gFlow=el('g'), gEq=el('g');
+el('text',{class:'zone',x:270,y:22},gEq,'TRANSFER');
+el('text',{class:'zone',x:560,y:320},gEq,'RECIRCULATION');
+el('text',{class:'zone',x:1150,y:210},gEq,'PERMEATE');
+for(const k in SEG) SEG[k].forEach(p=>{ if(k!=='FILT') el('path',{class:'pipe',d:d(p)},gBase) });
+// bags
+const bag=(y,id)=>{el('rect',{class:'eq',x:50,y,width:60,height:50,rx:9},gEq);const r=el('rect',{class:'liq',id:id+'f',x:53,y:y+3,width:54,height:44,rx:7,fill:'none'},gEq);return el('text',{class:'tk',id,x:80,y:y+30,'text-anchor':'middle'},gEq)};
+const bag1=bag(20,'b1'), bag2=bag(110,'b2');
+el('text',{class:'t',x:44,y:49,'text-anchor':'end'},gEq,'W');el('text',{class:'t',x:44,y:139,'text-anchor':'end'},gEq,'W');
+// air filters
+const airf=(x,y)=>{el('rect',{class:'eq',x:x-11,y:y-9,width:22,height:18,rx:2},gEq);for(let i=-6;i<=6;i+=4)el('line',{x1:x+i,y1:y-9,x2:x+i,y2:y+9,stroke:'var(--muted)','stroke-width':1},gEq)};
+airf(140,90); el('text',{class:'t',x:140,y:76,'text-anchor':'middle'},gEq,'air');
+airf(780,136); const itest=el('text',{class:'t',x:780,y:118,'text-anchor':'middle'},gEq,'air filter');
+// tank
+el('rect',{class:'eq',x:50,y:260,width:120,height:100,rx:6},gEq);
+const tankL=el('rect',{class:'liq',x:53,y:357,width:114,height:0,rx:3,fill:'none'},gEq);
+el('text',{class:'tk',x:110,y:300,'text-anchor':'middle'},gEq,'순환 탱크');
+el('text',{class:'t',x:44,y:314,'text-anchor':'end'},gEq,'W');
+// filter
+el('rect',{class:'eq',x:900,y:205,width:90,height:220,rx:3},gBase);
+el('line',{x1:958,y1:210,x2:958,y2:420,stroke:'var(--ink)','stroke-width':1.5,'stroke-dasharray':'5 4'},gBase);
+el('text',{class:'tk',x:975,y:318,'text-anchor':'middle',transform:'rotate(90 975 318)'},gBase,'투과 측');
+el('text',{class:'tk',x:916,y:318,'text-anchor':'middle',transform:'rotate(-90 916 318)'},gBase,'UF 막 필터');
+// permeate container
+el('rect',{class:'eq',x:1185,y:272,width:60,height:60,rx:9},gEq);
+const contL=el('rect',{class:'liq',x:1188,y:275,width:54,height:54,rx:7,fill:'none'},gEq);
+el('text',{class:'tk',x:1215,y:262,'text-anchor':'middle'},gEq,'투과액·폐액');el('text',{class:'t',x:1252,y:306},gEq,'W');
+// ends
+el('text',{class:'tk',x:975,y:566,'text-anchor':'middle'},gEq,'배수');
+el('path',{d:'M975,540l9,-6v12z',fill:'var(--muted)'},gEq);
+const portT=el('text',{class:'tk',x:760,y:524,'text-anchor':'middle'},gEq,'회수·샘플 포트');
+const inT=el('text',{class:'tk',x:360,y:630,'text-anchor':'middle'},gEq,'');
+el('text',{class:'t',x:262,y:544,'text-anchor':'end'},gEq,'inlet');
+// sensors
+SENS.forEach(([x,y,s])=>{const g=el('g',{},gEq);el('circle',{class:'eq',cx:x,cy:y,r:s.length>2?15:13},g);el('text',{class:'sn',x,y},g,s);hit(g,s)});
+// pumps
+const pumpEl={};
+for(const k in PUMP){const [x,y,rot,lab,dx,dy,an]=PUMP[k];const g=el('g',{class:'pump',transform:`translate(${x} ${y})`},gEq);
+  el('circle',{r:15},g);el('path',{d:'M-6,-8L9,0L-6,8z',transform:`rotate(${rot})`},g);pumpEl[k]=g;
+  hit(g,k);hit(el('text',{class:'t',x:x+dx,y:y+dy,'text-anchor':an},gEq,lab),k)}
+// valves
+const valEl={},valTx={};
+for(const k in VAL){const [x,y,o,dx,dy,an]=VAL[k];const g=el('g',{class:'v',transform:`translate(${x} ${y}) rotate(${o==='v'?90:0})`},gEq);
+  if(k==='PCV-341'){el('line',{x1:0,y1:0,x2:0,y2:-11,stroke:'var(--muted)','stroke-width':1.5},g);el('rect',{x:-5,y:-19,width:10,height:8},g)}
+  el('path',{d:'M-9,-6L0,0L-9,6zM9,-6L0,0L9,6z'},g);valEl[k]=g;
+  el('circle',{r:15,fill:'transparent'},g);
+  valTx[k]=el('text',{class:'t',x:x+dx,y:y+dy,'text-anchor':an},gEq,k);hit(g,k);hit(valTx[k],k)}
+gEq.querySelectorAll('text.t').forEach(t=>{if(t.textContent==='W')hit(t,'W')});
+
+// ---- abbreviations: click a symbol to see what the tag stands for
+const KIND={
+ XV:['On/off Valve','X는 기능을 따로 정하지 않았다는 글자, V는 Valve입니다. 열림과 닫힘 두 상태만 있는 자동 개폐 밸브로, 액을 어느 길로 보낼지 고릅니다.'],
+ PCV:['Pressure Control Valve','P는 Pressure, C는 Control, V는 Valve입니다. 열림 정도를 연속으로 바꿔 압력을 조절하는 밸브입니다.'],
+ P:['Pump','펌프입니다. 뒤의 숫자는 장비 번호입니다.']};
+const ROLE={
+ 'XV-081':'공기 유입 밸브. air filter를 거친 공기를 이송 라인에 넣습니다.','XV-082':'백 1 출구 밸브.','XV-083':'백 2 출구 밸브.',
+ 'XV-084':'이송 펌프 출구 밸브.','XV-085':'이송 라인과 투과 측을 잇는 밸브. 전량 순환과 배수 때 열립니다.','XV-086':'이송 라인과 농축액 라인을 잇는 밸브. 탱크로 들어가는 길목입니다.',
+ 'XV-051':'필터 농축액 출구 밸브.','XV-052':'탱크 복귀 밸브. 닫으면 탱크가 순환 라인에서 분리됩니다.','XV-041':'공기 연결 밸브. 완전성 시험기에서 필터 농축 측으로 공기를 넣습니다.',
+ 'XV-005':'탱크 출구 밸브.','XV-006':'필터 공급 입구 밸브.','XV-004':'inlet 포트에서 공급 펌프로 들어가는 밸브.','XV-071':'회수·샘플 포트 밸브. 농축한 제품을 꺼내는 곳입니다.',
+ 'XV-001':'inlet 포트 1.','XV-002':'inlet 포트 2.','XV-003':'inlet 포트 3.',
+ 'XV-032':'투과액 출구 밸브. 닫으면 여과 없이 순환만 합니다.','XV-033':'투과액을 순환 또는 배수 쪽으로 보내는 밸브.','XV-031':'배수 밸브.','XV-034':'투과액 용기 쪽 밸브.',
+ 'PCV-341':'농축액 라인의 압력 조절 밸브. 조이면 Pr이 올라 TMP가 커집니다.',
+ 'P-201':'공급 펌프(feed pump). 탱크의 액을 필터로 보내 cross-flow를 만듭니다.','P-202':'이송 펌프(transfer pump). 백의 제품이나 버퍼를 탱크로 옮깁니다.','P-203':'투과액 펌프(permeate pump). 투과액을 용기로 내보내며 유량을 조절합니다.'};
+const TERM={
+ A:['Air sensor','기포 센서입니다. 배관에 공기가 들어오면 감지해 펌프와 필터로 공기가 넘어가는 것을 막습니다.'],
+ Pf:['Pressure, feed','필터로 들어가는 공급 측 압력입니다.'],
+ Pr:['Pressure, retentate','필터를 지나 탱크로 돌아가는 농축액 측 압력입니다.'],
+ Pp:['Pressure, permeate','막을 통과한 투과액 측 압력입니다.'],
+ 'C&T':['Conductivity & Temperature','전도도와 온도를 함께 재는 센서입니다. 버퍼 교환이 얼마나 진행됐는지를 전도도로 봅니다.'],
+ pH:['pH sensor','투과액의 pH를 잽니다. 평형화와 버퍼 교환이 끝났는지 확인합니다.'],
+ F:['Flow meter','투과액 유량계입니다. 이 값을 막 면적으로 나누면 flux가 됩니다.'],
+ UV:['Ultraviolet absorbance (280 nm)','단백질이 흡수하는 자외선으로 단백질 유무를 봅니다. 투과 라인에서는 제품이 막을 새어 나오는지 감시합니다.'],
+ W:['Weight','저울(load cell)입니다. 백과 탱크의 무게로 액량을 알아냅니다.'],
+ TMP:['Transmembrane Pressure','막간 차압. (Pf + Pr) ÷ 2 − Pp. 액을 막 너머로 밀어내는 힘입니다.'],
+ 'ΔP':['Delta P (pressure drop)','Pf − Pr. 필터 입구와 출구의 압력 차이로, 막 표면을 쓸고 지나가는 흐름의 세기를 나타냅니다.'],
+ UF:['Ultrafiltration','한외여과. 단백질은 남기고 물과 작은 분자만 통과시켜 농축합니다.'],
+ DF:['Diafiltration','정용여과. 새 버퍼를 넣으면서 같은 양을 빼내 버퍼 조성을 바꿉니다.'],
+ TFF:['Tangential Flow Filtration','접선 유동 여과. 액을 막 표면과 나란히 흘려 막이 막히는 것을 줄입니다. UF/DF가 이 방식입니다.'],
+ NWP:['Normalized Water Permeability','표준화 수투과도. 깨끗한 물의 flux를 TMP로 나누고 온도 보정한 값으로, 막 상태와 세척 효과의 기준입니다.'],
+ LMH:['L/m²/h','flux의 단위. 막 1 m²를 1시간에 통과한 리터 수입니다.'],
+ VCF:['Volume Concentration Factor','농축 배수. 처음 부피 ÷ 현재 부피입니다.'],
+ DV:['Diavolume','DF에서 넣은 버퍼 부피 ÷ 탱크 부피. 7~10 DV면 원래 버퍼가 99.9% 이상 빠집니다.'],
+ WFI:['Water for Injection','주사용수. 세척과 헹굼에 쓰는 가장 높은 등급의 물입니다.'],
+ CIP:['Clean-in-Place','분해하지 않고 세척액을 흘려 씻는 것입니다.'],
+ 'P&ID':['Piping and Instrumentation Diagram','배관 계장도. 배관, 밸브, 펌프, 센서를 기호로 나타낸 도면입니다.']};
+const TAG={A:'AE-151(이송 라인), AE-152(inlet 라인)',Pf:'PT-111',Pr:'PT-112',Pp:'PT-113','C&T':'CE-101·TE-161(농축액), CE-102·TE-162(투과액)',pH:'AE-121',F:'FT-141',UV:'AE-131',W:'WE-176·177(탱크), WE-178(백), WE-179(투과액 용기)'};
+for(const k in TAG)TERM[k][1]+=' 도면 태그: '+TAG[k]+'.';
+const NOV=['XV-005','XV-006','XV-051','PCV-341'];
+for(const k in ROLE)if(k in VAL)ROLE[k]+=NOV.includes(k)?' 기본 상태 NO(공기 없으면 열림).':' 기본 상태 NC(공기 없으면 닫힘).';
+let OPEN=new Set(),PUMPS=new Set();
+const pop=document.getElementById('pop'),mainEl=document.getElementById('main');
+const isTag=t=>!!(TERM[t]||ROLE[t]||KIND[t]);
+const esc=s=>s.replace(/&/g,'&amp;');
+function hidePop(){pop.hidden=true}
+function show(tag,anchor){
+  stop();
+  let en,body=[],state='';
+  if(TERM[tag]){en=TERM[tag][0];body.push(TERM[tag][1])}
+  else{const k=KIND[tag.split('-')[0]];if(!k)return;en=k[0];body.push(k[1]);
+    if(ROLE[tag])body.push('이 장비에서: '+ROLE[tag]);
+    if(VAL[tag])state=OPEN.has(tag)?'열림':'닫힘';else if(PUMP[tag])state=PUMPS.has(tag)?'작동 중':'정지'}
+  pop.innerHTML=`<button type="button" class="x" aria-label="닫기">×</button><b>${esc(tag)}</b><em>${esc(en)}</em>`+body.map(p=>`<p>${p}</p>`).join('')+(state?`<p class="s">지금 단계에서: <strong>${state}</strong></p>`:'');
+  pop.hidden=false;
+  const m=mainEl.getBoundingClientRect(),r=anchor.getBoundingClientRect(),w=pop.offsetWidth,h=pop.offsetHeight;
+  const left=Math.max(8,Math.min(r.left+r.width/2-m.left-w/2,m.width-w-8));
+  let top=r.bottom-m.top+8;if(top+h>m.height-4)top=Math.max(4,r.top-m.top-h-8);
+  pop.style.left=left+'px';pop.style.top=top+'px';
+}
+function hit(node,tag){node.classList.add('hit');node.setAttribute('tabindex','0');node.setAttribute('role','button');node.setAttribute('aria-label',tag+' 뜻 보기');
+  node.addEventListener('click',e=>{e.stopPropagation();show(tag,node)});
+  node.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();show(tag,node)}})}
+pop.addEventListener('click',e=>{e.stopPropagation();if(e.target.closest('.x'))hidePop()});
+document.addEventListener('click',hidePop);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')hidePop()});
+const abbr=document.getElementById('abbr');
+abbr.innerHTML=['XV','PCV','P',...Object.keys(TERM)].map(k=>`<button type="button" class="ab" data-k="${esc(k)}">${esc(k)}</button>`).join('');
+abbr.addEventListener('click',e=>{const b=e.target.closest('.ab');if(b){e.stopPropagation();show(b.dataset.k,b)}});
+['valves','route'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{const s=e.target.closest('.k');if(s){e.stopPropagation();show(s.textContent,s)}}));
+
+// ---- steps
+const F={product:'제품(단백질 용액)',buffer:'버퍼',water:'물(WFI)',cip:'세척액',storage:'보관액',air:'공기',perm:'투과액'};
+const LOOP=['FEED_A','FEED_B1','FEED_B2','FILT','RET_A1','RET_A2','RET_B'];
+const TODRAIN=['FEED_B1','FEED_B2','FILT','RET_A1','RET_A2','-X086','X085','-M12','X031','PERM'];
+const PERMOUT=['PERM:perm','M12:perm','OUT:perm'];
+const RECYC=[...LOOP,'PERM','M12','-X085','X086'];
+const FILL=['TRANSFER','X086','RET_B','~RET_A2','~FEED_A'];
+const R={
+ fillB:['버퍼 백','XV-082','P-202','XV-084','XV-086','XV-052','순환 탱크'],
+ loop:['순환 탱크','XV-005','P-201','Pf','XV-006','필터','Pr','XV-051','PCV-341','XV-052','순환 탱크'],
+ recyc:['순환 탱크','P-201','필터','농축액 → 탱크','/','투과액','XV-032','XV-033','XV-085','XV-086','탱크'],
+ drain:['순환 탱크','XV-005','P-201','필터','PCV-341','XV-086','XV-085','XV-033','XV-031','배수'],
+ inlet:['inlet','XV-004','P-201','필터','PCV-341','XV-086','XV-085','XV-033','XV-031','배수']
+};
+const BASE=[
+ {ph:'사전 준비',t:'물 세척',e:'Filter cleaning d) Water flush',fluid:'water',lv:0,inlet:['IN1','물'],flow:['IN1','INT',...TODRAIN],route:R.inlet,
+  why:'필터와 배관에 들어 있던 보관액을 물로 밀어내 배수합니다. 새 막을 처음 쓸 때도 이 단계로 시작합니다.',
+  pts:['탱크를 거치지 않고 inlet에서 바로 공급 펌프로 들어가는 한 번 통과(single-pass) 방식입니다. XV-005와 XV-052가 닫혀 탱크는 격리됩니다.','농축액과 투과액이 모두 XV-031 배수로 모입니다. 막의 양쪽 면을 동시에 헹구는 셈입니다.']},
+ {ph:'사전 준비',t:'NWP 측정',e:'Determination of normalized water permeability (NWP)',fluid:'water',lv:0,inlet:['IN1','물'],flow:['IN1','INT',...TODRAIN],route:R.inlet,
+  why:'깨끗한 물이 막을 얼마나 잘 통과하는지 재서 막 상태의 기준값을 잡습니다.',
+  pts:['유로는 물 세척과 같습니다. 달라지는 것은 PCV-341로 TMP를 일정하게 맞추고 F(유량계)로 투과 유량을 읽는다는 점입니다.','NWP = 투과 flux(LMH) ÷ TMP, 여기에 온도 보정을 곱합니다. 물 점도가 온도에 따라 달라지기 때문에 C&T의 온도 값이 필요합니다.','공정과 세척을 마친 뒤 다시 재서 처음 값과 비교하면 세척이 충분했는지 판단할 수 있습니다.']},
+ {ph:'사전 준비',t:'완전성 시험',e:'Integrity test',fluid:'air',lv:0,flow:['X041','-RET_A1','-FILT','~FEED_B2','PERM','X031'],route:['Integrity tester','XV-041','Pr','필터 농축 측','(막을 통한 확산)','투과 측','XV-032','XV-031'],
+  why:'젖은 막의 한쪽에 공기 압력을 걸어 막이나 실링에 새는 곳이 없는지 확인합니다.',
+  pts:['XV-051과 XV-006이 닫혀 필터의 공급·농축 측이 밀폐됩니다. 펌프는 모두 정지 상태입니다.','막이 온전하면 공기는 젖은 기공을 뚫지 못하고 확산으로만 조금 넘어갑니다. 넘어가는 공기량이 기준보다 크면 결함으로 봅니다.','투과 측은 XV-032 → XV-031로 열어 두어 넘어온 공기와 밀려난 물이 빠져나가게 합니다.']},
+ {ph:'사전 준비',t:'평형화 ① 버퍼 채우기',e:'Filter equilibration · Step 1: equilibration buffer fill',fluid:'buffer',lv:.5,src:'b1',flow:['BAG1',...FILL],route:R.fillB,
+  why:'제품과 같은 조성의 버퍼를 이송 펌프로 순환 탱크에 받아 둡니다.',
+  pts:['이송 라인은 XV-086에서 농축액 라인에 합류한 뒤 XV-052를 지나 탱크로 들어갑니다. 탱크 전용 입구가 따로 없고 농축액 복귀 라인을 같이 씁니다.','기포 센서 A가 백이 비는 순간을 감지해 펌프에 공기가 들어가는 것을 막습니다.']},
+ {ph:'사전 준비',t:'평형화 ② 버퍼 순환',e:'Filter equilibration · Step 2: buffer recirculation',fluid:'buffer',lv:.5,flow:RECYC,route:R.recyc,
+  why:'버퍼를 막 양쪽으로 돌려 필터 안의 pH와 전도도를 제품 조건에 맞춥니다.',
+  pts:['투과액을 버리지 않고 XV-033 → XV-085 → XV-086을 거쳐 탱크로 되돌립니다(total recycle). 그래서 탱크 수위가 변하지 않습니다.','투과 측 pH와 전도도(C&T)가 버퍼 값과 같아지면 평형화가 끝난 것으로 봅니다.']},
+ {ph:'사전 준비',t:'평형화 ③ 버퍼 배수',e:'Filter equilibration · Step 3: buffer drain',fluid:'buffer',lv:.04,flow:['FEED_A',...TODRAIN],route:R.drain,
+  why:'평형화에 쓴 버퍼를 탱크와 필터에서 비워 제품을 받을 준비를 합니다.',
+  pts:['XV-052가 닫히고 XV-086이 반대 방향으로 쓰입니다. 농축액이 탱크로 돌아가지 않고 XV-085 라인을 타고 배수로 나갑니다.','같은 XV-085 라인이 ②에서는 탱크로 돌아오는 길, ③에서는 배수로 나가는 길로 쓰입니다. 이 라인의 흐름 방향을 보면 순환인지 배수인지 구분됩니다.']},
+
+ {ph:'농축 · 버퍼 교환',t:'제품 이송',e:'Product transfer',fluid:'product',lv:.62,src:'b2',flow:['BAG2',...FILL],route:['제품 백','XV-083','P-202','XV-084','XV-086','XV-052','순환 탱크'],
+  why:'앞 공정에서 넘어온 제품 용액을 순환 탱크로 옮깁니다.',
+  pts:['평형화 ①과 같은 길이고 출발점만 제품 백으로 바뀝니다.','탱크 저울 W로 받은 양을 확인합니다. 이 초기 무게가 이후 농축 배수(VCF) 계산의 기준이 됩니다.']},
+ {ph:'농축 · 버퍼 교환',t:'배치 농축 (UF)',e:'Batch concentration (ultrafiltration)',fluid:'product',lv:.4,flow:[...LOOP,...PERMOUT],route:[...R.loop,'/','투과액','XV-032','XV-034','P-203','UV','투과액 용기'],
+  why:'제품을 필터에 계속 순환시키면서 물과 작은 분자만 투과액으로 빼내 농도를 올립니다.',
+  pts:['단백질은 막을 통과하지 못해 농축액으로 탱크에 돌아오고, 물과 염은 투과 측으로 빠집니다. 탱크 수위는 계속 내려갑니다.','P-201이 cross-flow를 만들고 PCV-341이 농축액 쪽을 조여 TMP를 만듭니다. Pf, Pr, Pp 세 값으로 TMP와 ΔP를 계산합니다.','투과 라인의 UV는 제품이 막을 새어 나오는지 감시합니다. 신호가 올라오면 막 손상이나 누설을 의심합니다.']},
+ {ph:'농축 · 버퍼 교환',t:'유가식 농축 (UF)',e:'Fed-batch concentration (ultrafiltration)',fluid:'product',lv:.62,src:'b2',flow:['BAG2','TRANSFER','X086',...LOOP,...PERMOUT],route:['제품 백','XV-083','P-202','XV-086','탱크로 합류','/',...R.loop.slice(0,6),'투과액 배출'],
+  why:'제품 양이 탱크 용량보다 많을 때, 농축하면서 줄어든 만큼 제품을 계속 보충합니다.',
+  pts:['배치 농축 유로에 이송 라인(제품 백 → P-202 → XV-086)이 더해진 형태입니다.','투과로 빠지는 만큼 채워 넣어 탱크 수위를 일정하게 유지합니다. 백이 비면 배치 농축으로 넘어갑니다.']},
+ {ph:'농축 · 버퍼 교환',t:'연속 정용여과 (DF)',e:'Continuous diafiltration (ultrafiltration)',fluid:'product',lv:.4,src:'b1',flow:['BAG1:buffer','TRANSFER:buffer','X086:buffer',...LOOP,...PERMOUT],route:['DF 버퍼 백','XV-082','P-202','XV-086','탱크로 합류','/',...R.loop.slice(0,6),'투과액 배출'],
+  why:'새 버퍼를 넣는 속도와 투과액이 빠지는 속도를 맞춰, 부피는 그대로 두고 버퍼 조성만 바꿉니다.',
+  pts:['유가식 농축과 배관은 같습니다. 보충하는 것이 제품이 아니라 새 버퍼라는 점이 다릅니다.','탱크 무게가 일정하게 유지되도록 P-202 속도를 제어합니다. 넣은 버퍼 부피 ÷ 탱크 부피가 diavolume(DV)입니다.','투과 측 전도도와 pH가 새 버퍼 값에 가까워지는 것으로 교환이 진행되는 정도를 봅니다.']},
+ {ph:'농축 · 버퍼 교환',t:'최종 농축',e:'Final concentration',fluid:'product',lv:.22,flow:[...LOOP,...PERMOUT],route:[...R.loop,'/','투과액 배출'],
+  why:'버퍼 교환이 끝난 제품을 목표 농도까지 한 번 더 농축합니다.',
+  pts:['유로는 배치 농축과 완전히 같습니다. 탱크 무게가 목표값에 닿으면 멈춥니다.','농도가 높을수록 점도와 막 표면의 농도 분극이 커져 flux가 떨어집니다. 회수 때 배관에 남은 액이 희석시키는 것을 감안해 목표보다 조금 더 농축하기도 합니다.']},
+
+ {ph:'제품 회수',t:'회수 A: 공급 펌프로 배출',e:'Product recovery by feed flow',fluid:'product',lv:.03,flow:['FEED_A','FEED_B1','X071','~RET_B','~RET_A2'],route:['순환 탱크','XV-005','P-201','Pf','XV-071','회수 포트'],
+  why:'탱크에 있는 농축 제품을 공급 펌프로 밀어 XV-071 회수 포트로 꺼냅니다.',
+  pts:['XV-006이 닫혀 제품이 필터로 가지 않고 그 직전의 XV-071로 빠집니다.','가장 간단한 방법이지만 필터 안과 농축액 라인에 남은 제품(hold-up)은 나오지 않습니다. 그래서 아래 B나 C를 이어서 합니다.']},
+ {ph:'제품 회수',t:'회수 B-a: 버퍼 채우기',e:'Product recovery by recovery flush · a) Buffer fill',fluid:'buffer',lv:.18,src:'b1',flow:['BAG1',...FILL],route:R.fillB,
+  why:'남은 제품을 씻어낼 버퍼를 탱크에 소량 받습니다.',
+  pts:['버퍼를 많이 넣을수록 수율은 오르지만 최종 농도는 묽어집니다. 그래서 필터와 배관 hold-up 부피에 맞춰 양을 정합니다.']},
+ {ph:'제품 회수',t:'회수 B-b: 버퍼 순환',e:'Product recovery by recovery flush · b) Buffer recirculation',fluid:'buffer',lv:.18,flow:LOOP,route:R.loop,
+  why:'버퍼를 필터에 돌려 막 표면과 배관에 붙어 있던 제품을 버퍼 속으로 풀어냅니다.',
+  pts:['투과 측 XV-032가 닫혀 있습니다. 여과는 하지 않고 순환만 하므로 부피가 줄지 않습니다.','PCV-341을 열어 TMP를 낮추면 막 표면의 분극층이 풀려 제품이 더 잘 떨어집니다.']},
+ {ph:'제품 회수',t:'회수 B-c: 수집',e:'Product recovery by recovery flush · c) Collection',fluid:'buffer',lv:.03,flow:['FEED_A','FEED_B1','X071','~RET_B','~RET_A2'],route:['순환 탱크','XV-005','P-201','Pf','XV-071','회수 포트'],
+  why:'제품이 녹아 나온 flush 버퍼를 회수 포트로 받아 앞서 회수한 제품과 합칩니다.',
+  pts:['유로는 회수 A와 같습니다. 합친 뒤의 최종 농도와 부피로 수율을 계산합니다.']},
+ {ph:'제품 회수',t:'회수 C: 공기로 밀어내기',e:'Product recovery · air controlled by transfer pump',fluid:'air',lv:.02,flow:['AIRIN','TRANSFER','X086','-RET_A2','-RET_A1:product','-FILT:product','-FEED_B2:product','X071:product'],route:['Air filter','XV-081','P-202','XV-084','XV-086','PCV-341','XV-051','Pr','필터(역방향)','XV-006','XV-071','회수 포트'],
+  why:'이송 펌프로 여과된 공기를 넣어 농축액 라인과 필터 안의 제품을 희석 없이 밀어냅니다.',
+  pts:['평소와 반대 방향입니다. 농축액 라인 → 필터 → 공급 라인 쪽으로 거꾸로 흘러 XV-071로 나옵니다.','XV-052와 XV-005가 닫혀 공기가 탱크로 새지 않습니다. 버퍼를 쓰지 않으므로 농도가 묽어지지 않는 것이 장점입니다.','공기는 XV-081의 멸균 air filter를 거쳐 들어옵니다.']},
+
+ {ph:'세척 · 보관',t:'세척 a: 세척액 채우기',e:'Filter cleaning by recirculation · a) Cleaning solution fill',fluid:'cip',lv:.5,inlet:['IN3','세척액'],flow:['IN3','INT','FEED_B1','FEED_B2','FILT','RET_A1','RET_A2','RET_B','~FEED_A','~PERM'],route:['inlet(세척액)','XV-004','P-201','XV-006','필터','PCV-341','XV-052','순환 탱크'],
+  why:'세척액을 inlet에서 끌어와 필터를 지나 탱크에 채웁니다.',
+  pts:['버퍼는 이송 펌프로 탱크에 바로 넣었지만, 세척액은 공급 펌프로 필터를 먼저 통과시켜 탱크에 받습니다. 채우는 동안에도 세척이 시작됩니다.','세척액은 보통 NaOH 계열을 쓰며 농도·온도·시간은 막 제조사 권장 조건과 세척 밸리데이션 결과를 따릅니다.']},
+ {ph:'세척 · 보관',t:'세척 b: 세척액 순환',e:'Filter cleaning by recirculation · b) Cleaning solution recirculation',fluid:'cip',lv:.5,flow:RECYC,route:R.recyc,
+  why:'세척액을 막 양쪽으로 정해진 시간 동안 순환시켜 단백질 오염물을 녹여 냅니다.',
+  pts:['평형화 ②와 같은 total recycle 유로입니다. 투과 측까지 세척액이 돌아야 막 기공 속까지 닿습니다.','접촉 시간, 유속, 온도가 세척 효과를 좌우하는 변수입니다.']},
+ {ph:'세척 · 보관',t:'세척 c: 세척액 배수',e:'Filter cleaning by recirculation · c) Cleaning solution drain',fluid:'cip',lv:.04,flow:['FEED_A',...TODRAIN],route:R.drain,
+  why:'오염물이 녹아든 세척액을 탱크와 필터에서 모두 빼냅니다.',
+  pts:['평형화 ③과 같은 배수 유로입니다.']},
+ {ph:'세척 · 보관',t:'세척 d: 물 세척 후 NWP 재측정',e:'Filter cleaning d) Water flush → NWP',fluid:'water',lv:0,inlet:['IN1','물'],flow:['IN1','INT',...TODRAIN],route:R.inlet,
+  why:'남은 세척액을 물로 헹궈 낸 뒤 NWP를 다시 재서 막이 회복됐는지 확인합니다.',
+  pts:['배수 쪽 전도도와 pH가 물 수준으로 내려오면 헹굼이 끝난 것입니다.','세척 후 NWP를 처음 기준값과 비교합니다. 회복률이 기준에 못 미치면 세척을 반복하거나 막 교체를 검토합니다.']},
+ {ph:'세척 · 보관',t:'필터 보관',e:'Filter storage',fluid:'storage',lv:0,inlet:['IN2','보관액'],flow:['IN2','INT',...TODRAIN],route:R.inlet,
+  why:'다음 사용 때까지 미생물이 자라지 않도록 필터와 배관을 보관액으로 채워 둡니다.',
+  pts:['물 세척과 같은 길로 보관액을 흘려 물을 보관액으로 바꿉니다. 그 상태로 밸브를 닫아 둡니다.','다음 배치는 다시 맨 처음의 물 세척부터 시작합니다. 전체가 하나의 순환 구조입니다.']}
+];
+
+// ---- scenarios built from BASE workflow steps
+const SC={
+ std:{name:'시나리오 1 · 표준 UF/DF 배치',desc:'제품이 순환 탱크 한 번에 다 들어가는 크기. 준비 → 농축 → 버퍼 교환 → 최종 농축 → 회수까지 정석대로 돌립니다. 회수는 버퍼 flush(B)로 수율을 챙깁니다.'},
+ big:{name:'시나리오 2 · 탱크보다 큰 배치',desc:'제품 양이 탱크 용량을 넘을 때. 탱크를 먼저 채운 뒤 유가식으로 보충하면서 농축하고, 마지막 회수는 공기(C)로 밀어 농도가 묽어지지 않게 합니다. 사전 준비는 시나리오 1과 같아 생략.'},
+ cln:{name:'시나리오 3 · 배치 후 세척 · 보관',desc:'제품을 다 꺼낸 뒤 NaOH 순환 세척, 헹굼, NWP 재측정, 보관액 충전까지. 다음 배치는 다시 물 세척부터 시작합니다.'},
+ trb:{name:'시나리오 4 · 운전 중 이상 상황',desc:'UF/DF를 돌리다 생길 만한 다섯 가지 상황. 어떤 센서가 신호를 주는지, 밸브를 어떻게 바꿔 제품을 지키는지 유로로 봅니다.'}
+};
+const B=(i,sc,o={})=>({...BASE[i],sc,...o});
+const TRB=[
+ {sc:'trb',alert:true,t:'① 투과 라인 UV 상승',e:'Product in permeate · switch to total recycle',fluid:'product',lv:.4,
+  flow:[...LOOP,'PERM:perm','M12:perm','-X085:perm','X086:perm'],route:['투과액','XV-032','UV 확인','XV-033','XV-085','XV-086','XV-052','순환 탱크'],
+  why:'농축 중 투과 라인 UV가 올라갑니다. 단백질이 막을 넘어오고 있다는 뜻이라, 투과액을 버리지 않고 탱크로 되돌립니다.',
+  pts:['XV-034를 닫고 XV-033 → XV-085 → XV-086으로 돌리면 total recycle이 됩니다. 더 이상 제품이 투과액 용기로 새지 않습니다.','원인 후보는 막 손상, 카세트 실링·가스켓 누설, 맞지 않는 MWCO. 공정을 멈추고 완전성 시험으로 확인합니다.','이미 용기로 간 투과액은 단백질 농도를 재서 손실량을 계산하고, 일탈로 기록합니다.']},
+ {sc:'trb',alert:true,t:'② TMP 오르고 flux 떨어짐',e:'Flux decline · recirculate without permeate',fluid:'product',lv:.3,
+  flow:LOOP,route:R.loop,
+  why:'TMP를 올려도 F(유량계)로 본 flux가 계속 떨어집니다. 막 표면에 단백질이 쌓인 농도분극·겔층을 의심합니다.',
+  pts:['XV-032를 닫아 투과를 잠시 멈추고 cross-flow만 돌립니다. 흐름이 막 표면을 쓸어 쌓인 층을 풀어 줍니다.','PCV-341을 열어 TMP를 낮춥니다. TMP를 무작정 올리면 오히려 층이 더 단단해져 flux가 안 돌아옵니다.','회복이 안 되면 목표 농도가 점도 한계에 걸린 건 아닌지 봅니다. 공정 개발 때 정한 flux·TMP 범위가 판단 기준입니다.']},
+ {sc:'trb',alert:true,t:'③ 이송 중 기포 센서 알람',e:'Air sensor AE-151 · bag empty',fluid:'air',lv:.55,src:'b2',
+  flow:['BAG2:air'],route:['제품 백 (비어 감)','XV-083','A','P-202 정지'],
+  why:'제품 백이 비면서 이송 라인 기포 센서 A가 공기를 잡았고, P-202가 멈췄습니다.',
+  pts:['고장이 아니라 원래 역할입니다. 백 끝을 감지해 공기가 탱크·필터로 넘어가는 걸 막습니다.','다음 백이 있으면 교체하고 이어 받습니다. 라인에 들어간 공기는 짧게 빼고 시작합니다.','백 저울(W)이 줄어든 양과 탱크 저울이 늘어난 양을 맞춰 봅니다. 차이가 크면 연결부 누액을 의심합니다.']},
+ {sc:'trb',alert:true,t:'④ 세척 후 NWP 회복 불량',e:'Low NWP recovery · repeat cleaning',fluid:'cip',lv:.5,
+  flow:RECYC,route:R.recyc,
+  why:'세척 후 잰 NWP가 처음 기준값 대비 회복률 기준에 못 미칩니다. 막에 오염이 남아 있는 상태입니다.',
+  pts:['세척 순환(시나리오 3의 b)을 다시 돌립니다. NaOH 농도, 온도, 접촉 시간이 제대로였는지부터 확인합니다.','반복해도 안 되면 다른 세척제를 검토하는데, 막 재질과 호환되는지 제조사 자료를 먼저 봅니다.','배치마다 NWP를 기록해 두면 추세로 막 교체 시점을 잡을 수 있습니다.']},
+ {sc:'trb',alert:true,t:'⑤ 완전성 시험 불합격',e:'Integrity test fail · re-wet and retest',fluid:'water',lv:0,inlet:['IN1','물'],
+  flow:BASE[0].flow,route:R.inlet,
+  why:'완전성 시험에서 확산 공기량이 기준을 넘었습니다. 바로 막 불량으로 단정하지 않고 다시 적셔서 재시험합니다.',
+  pts:['흔한 원인은 막이 덜 젖어 기공에 공기가 남은 경우, 카세트 클램프 체결이 덜 된 경우입니다.','물 세척을 길게 하고 TMP를 걸어 기공을 충분히 적신 뒤 재시험합니다. 클램프 토크도 다시 확인합니다.','재시험도 불합격이면 사용 금지 표시하고 교체합니다. 재시험 몇 번까지 허용하는지는 SOP에 정해 둡니다.']}
+];
+const STEPS=[
+ ...[0,1,2,3,4,5,6,7,9,10,11,12,13,14].map(i=>B(i,'std')),
+ B(6,'big',{t:'제품 1차 이송',why:'탱크가 찰 때까지 제품 백의 일부를 먼저 받습니다. 나머지는 다음 단계에서 보충합니다.'}),
+ B(8,'big'),B(7,'big',{t:'배치 농축 (백 비운 뒤)',why:'제품 백이 다 비면 보충을 멈추고, 탱크 안 제품을 목표 부피까지 농축합니다.'}),
+ B(9,'big'),B(10,'big'),B(11,'big'),B(15,'big'),
+ ...[16,17,18,19,20].map(i=>B(i,'cln')),
+ ...TRB
+];
+
+// ---- rail
+const rail=document.getElementById('rail');let lastPh='';
+STEPS.forEach((s,i)=>{ if(s.sc!==lastPh){const h=document.createElement('h2');h.textContent=SC[s.sc].name;lastPh=s.sc;rail.appendChild(h)}
+  const b=document.createElement('button');b.type='button';b.className='step';b.id='step'+i;b.innerHTML=`<span class="n">${i+1}</span><span>${s.t}</span>`;b.onclick=()=>{stop();go(i)};rail.appendChild(b)});
+
+const $=id=>document.getElementById(id);
+let cur=0;
+function arrow(p,col){ // arrowhead on the longest leg
+  let best=0,bi=0;for(let i=0;i<p.length-1;i++){const L=Math.hypot(p[i+1][0]-p[i][0],p[i+1][1]-p[i][1]);if(L>best){best=L;bi=i}}
+  if(best<40)return;const a=p[bi],b=p[bi+1],ang=Math.atan2(b[1]-a[1],b[0]-a[0])*180/Math.PI;
+  el('path',{d:'M-7,-7L8,0L-7,7z',fill:col,stroke:'var(--panel)','stroke-width':1.5,transform:`translate(${(a[0]+b[0])/2} ${(a[1]+b[1])/2}) rotate(${ang})`},gFlow)}
+function go(i){
+  cur=(i+STEPS.length)%STEPS.length;const s=STEPS[cur];
+  gFlow.replaceChildren();
+  const open=new Set(),pumps=new Set(),used=new Set();
+  s.flow.forEach(spec=>{
+    let [name,c]=spec.split(':');let rev=false,stat=false;
+    if(name[0]==='-'){rev=true;name=name.slice(1)} if(name[0]==='~'){stat=true;name=name.slice(1)}
+    const col=`var(--${c||s.fluid})`;used.add(c||s.fluid);
+    SEG[name].forEach(p0=>{const p=rev?[...p0].reverse():p0;
+      el('path',{class:'halo',d:d(p),stroke:col},gFlow);
+      el('path',{class:stat?'st':'fl',d:d(p),stroke:col},gFlow);
+      if(!stat&&name!=='FILT')arrow(p,col)});
+    if(!stat){(SEGV[name]||[]).forEach(v=>open.add(v));if(SEGP[name])pumps.add(SEGP[name])}
+  });
+  OPEN=open;PUMPS=pumps;hidePop();
+  for(const k in valEl){const on=open.has(k);valEl[k].classList.toggle('on',on);valTx[k].classList.toggle('on',on)}
+  for(const k in pumpEl)pumpEl[k].classList.toggle('on',pumps.has(k));
+  // vessels
+  const fcol=`var(--${s.fluid==='air'?'product':s.fluid})`;
+  const h=Math.round(94*s.lv);tankL.setAttribute('y',357-h);tankL.setAttribute('height',h);tankL.setAttribute('fill',fcol);tankL.setAttribute('opacity',.45);
+  const fill=(r,on,c)=>{r.setAttribute('fill',on?c:'none');r.setAttribute('opacity',.4)};
+  fill($('b1f'),s.src==='b1','var(--buffer)');fill($('b2f'),s.src==='b2','var(--product)');
+  bag1.textContent=s.src==='b1'?'버퍼':'백 1';bag2.textContent=s.src==='b2'?'제품':'백 2';
+  fill(contL,s.flow.some(f=>f.startsWith('OUT')),'var(--perm)');
+  inT.textContent=s.inlet?s.inlet[1]+' 연결':'';if(s.inlet)inT.setAttribute('x',{IN1:300,IN2:360,IN3:420}[s.inlet[0]]);
+  itest.textContent=open.has('XV-041')?'Integrity tester':'air filter';
+  portT.classList.toggle('on',open.has('XV-071'));
+  // text
+  $('ttl').textContent=`${cur+1}. ${s.t}`;$('scName').textContent=SC[s.sc].name;$('scDesc').textContent=SC[s.sc].desc;$('whyCard').classList.toggle('alert',!!s.alert);$('whyH').textContent=s.alert?'상황':'이 단계의 목적';$('ptsH').textContent=s.alert?'대응 포인트':'이해 포인트';$('eng').textContent=s.e;$('why').textContent=s.why;
+  $('route').innerHTML=s.route.map((r,j)=>r==='/'?'<i>＋</i>':(j&&s.route[j-1]!=='/'?'<i>→</i>':'')+`<b${isTag(r)?' class="k"':''}>${r}</b>`).join('');
+  $('valves').innerHTML=[...open].sort().map(v=>`<span class="k">${v}</span>`).join('')+([...pumps].sort().map(v=>`<span class="p k">${v}</span>`).join('')||'<span class="p">펌프 정지</span>');
+  $('pts').innerHTML=s.pts.map(p=>`<li>${p}</li>`).join('');
+  $('legend').innerHTML=[...used].map(u=>`<span><i class="sw" style="background:var(--${u})"></i>${F[u]}</span>`).join('')
+    +'<span><svg width="22" height="14" viewBox="-11 -7 22 14"><path d="M-9,-6L0,0L-9,6zM9,-6L0,0L9,6z" fill="var(--accent)" stroke="var(--accent)" stroke-width="1.5"/></svg>열린 밸브</span>'
+    +'<span><svg width="22" height="14" viewBox="-11 -7 22 14"><path d="M-9,-6L0,0L-9,6zM9,-6L0,0L9,6z" fill="none" stroke="var(--muted)" stroke-width="1.5"/></svg>닫힌 밸브</span>'
+    +'<span>옅은 실선: 액이 차 있지만 흐르지 않는 구간</span>';
+  document.querySelectorAll('.step').forEach((b,j)=>b.setAttribute('aria-current',j===cur));
+  const act=$('step'+cur);if(rail.scrollWidth>rail.clientWidth)rail.scrollTo({left:act.offsetLeft-rail.clientWidth/2+act.offsetWidth/2,behavior:'smooth'});
+}
+// ---- autoplay
+const DUR=7000;let timer=null,t0=0;
+function tick(){const p=(performance.now()-t0)/DUR;$('prog').style.width=Math.min(100,p*100)+'%';if(p>=1){go(cur+1);t0=performance.now()}timer=requestAnimationFrame(tick)}
+function stop(){if(timer){cancelAnimationFrame(timer);timer=null}$('prog').style.width='0';$('play').textContent='▶ 자동 재생'}
+$('play').onclick=()=>{if(timer)stop();else{t0=performance.now();$('play').textContent='❚❚ 일시정지';tick()}};
+$('prev').onclick=()=>{stop();go(cur-1)};$('next').onclick=()=>{stop();go(cur+1)};
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'){stop();go(cur+1)}else if(e.key==='ArrowLeft'){stop();go(cur-1)}});
+const SIG={
+ no:['XV-005','XV-006','XV-051','PCV-341'],
+ valve:{'XV-081':{do:'DO31',di:'DI47'},'XV-082':{do:'DO12',di:'DI28'},'XV-083':{do:'DO13',di:'DI29'},'XV-084':{do:'DO14',di:'DI30'},
+  'XV-085':{do:'DO44',di:'DI59'},'XV-086':{do:'DO10',di:'DI26'},'XV-052':{do:'DO11',di:'DI27'},'XV-051':{do:'DO09',di:'DI25'},
+  'XV-041':{do:'DO08',di:'DI24'},'XV-001':{do:'DO01',di:'DI17'},'XV-002':{do:'DO02',di:'DI18'},'XV-003':{do:'DO03',di:'DI19'},
+  'XV-004':{do:'DO04',di:'DI20'},'XV-005':{do:'DO05',di:'DI21'},'XV-006':{do:'DO23',di:'DI07'},'XV-071':{do:'DO06',di:'DI22'},
+  'XV-031':{do:'DO15',di:'DI31'},'XV-032':{do:'DO16',di:'DI32'},'XV-033':{do:'DO32',di:'DI48'},'XV-034':{do:'DO43',di:'DI58'},
+  'PCV-341':{do:'DO48',di:'DI60',short:'AO02·AI12'}},
+ pump:{'P-201':'SC-201 · Enable DO17, 속도 지령 AO01, 회전 펄스 DI03, Ready DI45, 전류 AI04',
+       'P-202':'SC-202 · Start DO33, 속도 지령 AO05, 회전 펄스 DI02, 알람 DI43 / 리셋 DO36',
+       'P-203':'SC-203 · Start DO38, 속도 지령 AO06, 방향 DO45, 회전 펄스 DI07, 알람 DI44 / 리셋 DO41'},
+ cmd(k,open){const s=this.valve[k];const n=k.split('-')[1];
+   if(k==='PCV-341')return `XY-341(${s.do}) 솔레노이드, 개도는 AO02로 지령하고 AI12 압력으로 되먹임, 위치 ZSO341(${s.di})`;
+   return `XY${n}(${s.do}) ${open?'통전':'통전해서 닫음'} → 위치 확인 ZSO${n}(${s.di})`},
+ pop(t){const s=this.valve[t];if(s){const n=t.split('-')[1];return t==='PCV-341'?'XY-341 = DO48, ZSO341 = DI60, 압력 제어 출력 AO02, 압력 피드백 AI12.':`솔레노이드 XY${n} = ${s.do}, 열림 위치 스위치 ZSO${n} = ${s.di}.`}
+   if(this.pump[t])return this.pump[t]+'.';return null},
+ notes:['DO는 PLC가 내보내는 on/off 명령, DI는 들어오는 on/off 신호, AO/AI는 연속값(속도 지령, 압력값 등)입니다.','밸브 하나에 고리가 하나씩. DO → 솔레노이드(XY)가 공기를 넣음 → 밸브가 움직임 → 위치 스위치(ZSO)가 DI로 "열렸다"를 돌려 줍니다.','명령과 ZSO가 안 맞으면 위치 불일치. 보통 알람이 뜨고 인터록으로 펌프가 멈춥니다. 공압이 빠지는 경우는 PS-351(DI37, Comp Air OK)이 먼저 잡습니다.','공압이 끊기면 NC 밸브는 전부 닫히고 NO 밸브(XV-005·006·051, PCV-341)는 열립니다. 순환 루프만 열린 채 남는 쪽으로 설계된 셈입니다.','채널 번호는 사진에서 읽은 값이라 흐린 곳은 틀릴 수 있습니다. 예를 들어 DI07이 ZSO006과 SC-203 펄스에 둘 다 보여서 하나는 잘못 읽었을 가능성이 있습니다.']
+};
+SIG.extra=[()=>{
+  sigBox(990,14,290,['공압 CV-351 → PS-351 (DI37 · Comp Air OK)','→ 모든 XV · PCV 솔레노이드로 공급']);
+  [[300,116,'AE-151·DI39','middle'],[496,504,'AE-152·DI40','start'],[680,424,'PT-111·AI01','middle'],[845,207,'PT-112·AI02','middle'],
+   [650,207,'CE-101·TE-161 AI07/08','middle'],[1078,354,'AI03','start'],[1080,389,'AI05/06','start'],[1078,424,'AI10','start'],[1078,459,'AI18','start'],[1233,419,'AU-131 (CAN)','start'],
+   [44,326,'AI13','end'],[1252,318,'AI15','start'],[44,61,'AI14','end'],
+   [365,132,'SC-202 · AO05','middle'],[580,442,'SC-201 · AO01','middle'],[1237,490,'SC-203 · AO06','start']].forEach(([x,y,s,a])=>sigText(x,y,s,a));
+}];
+
+// ---- instrumentation & control layer (toggle)
+const gSig=el('g',{display:'none'});
+let SIGON=false;
+const sigBtn=document.getElementById('sig'),sigCard=document.getElementById('sigCard'),sigBody=document.getElementById('sigBody');
+function sigText(x,y,s,an='middle'){return el('text',{class:'sg',x,y,'text-anchor':an},gSig,s)}
+function sigLine(pts){return el('path',{class:'sgl',d:d(pts)},gSig)}
+function sigBox(x,y,w,lines){el('rect',{class:'sgb',x,y,width:w,height:12+lines.length*13,rx:4},gSig);lines.forEach((l,i)=>el('text',{class:'sg',x:x+8,y:y+16+i*13},gSig,l))}
+// channel labels under valve tags
+for(const k in SIG.valve){const v=VAL[k];if(!v)continue;const [x,y,o,dx,dy,an]=v;const s=SIG.valve[k];
+  const yy=o==='v'?y+dy+11:(dy<0?y+dy-11:y+dy+11);sigText(x+dx,yy,s.short||(s.do+'·'+s.di),an)}
+(SIG.extra||[]).forEach(f=>f());
+sigBtn.addEventListener('click',e=>{e.stopPropagation();SIGON=!SIGON;sigBtn.setAttribute('aria-pressed',SIGON);gSig.setAttribute('display',SIGON?'inline':'none');sigCard.hidden=!SIGON;renderSig()});
+function renderSig(){
+  if(!SIGON)return;
+  const cmd=[],idle=[];
+  for(const k in VAL){const def=SIG.no.includes(k),now=OPEN.has(k);
+    if(now!==def)cmd.push(`<li><b>${k}</b> ${now?'열기':'닫기'} · ${SIG.cmd(k,now)}</li>`);
+    else if(def)idle.push(k)}
+  const pm=[...PUMPS].sort().map(p=>`<li><b>${p}</b> · ${SIG.pump[p]}</li>`).join('')||'<li>돌아가는 펌프 없음</li>';
+  sigBody.innerHTML=`<div class="sgcol"><h4>명령이 나가는 밸브 (${cmd.length})</h4><ul class="pts">${cmd.join('')||'<li>없음. 전부 기본 상태</li>'}</ul></div>`
+   +`<div class="sgcol"><h4>펌프 신호</h4><ul class="pts">${pm}</ul>`
+   +(idle.length?`<h4>신호 없이 기본 상태로 열려 있는 밸브</h4><p class="note">${idle.join(', ')}. NO 밸브라 열어 두는 데 명령이 필요 없습니다. 오히려 닫을 때 신호가 나갑니다.</p>`:'')
+   +`<h4>읽는 법</h4><ul class="pts">${SIG.notes.map(n=>`<li>${n}</li>`).join('')}</ul></div>`;
+}
+const _go=go;go=function(i){_go(i);renderSig()};
+const _show=show;show=function(tag,anchor){_show(tag,anchor);if(SIGON&&!pop.hidden&&SIG.pop(tag)){pop.insertAdjacentHTML('beforeend',`<p class="s">계측·제어: ${SIG.pop(tag)}</p>`);}};
+
+go(7);
+</script>
+
+
+
+</body></html>
